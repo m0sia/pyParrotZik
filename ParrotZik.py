@@ -35,7 +35,10 @@ class ParrotZik(object):
 
 	def getBatteryLevel(self):
 		data = self.sendGetMessage("/api/system/battery/get")
-		return data.answer.system.battery["level"]
+		try:
+			return data.answer.system.battery["level"]
+		except:
+			return "0"
 
 	def getVersion(self):
 		data = self.sendGetMessage("/api/software/version/get")
@@ -48,6 +51,10 @@ class ParrotZik(object):
 	def getAutoConnection(self):
 		data = self.sendGetMessage("/api/system/auto_connection/enabled/get")
 		return data.answer.system.auto_connection["enabled"]
+
+	def setAutoConnection(self,arg):
+		data = self.sendSetMessage("/api/system/auto_connection/enabled/set",arg)
+		return data
 
 	def getAncPhoneMode(self):
 		data = self.sendGetMessage("/api/system/anc_phone_mode/enabled/get")
