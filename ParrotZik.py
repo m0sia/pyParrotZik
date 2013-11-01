@@ -27,6 +27,8 @@ class ParrotZik(object):
 
 		self.sock.send('\x00\x03\x00')
 		data = self.sock.recv(3)
+
+		self.BatteryLevel = 100
 		print "Connected"
 
 	def getBatteryState(self):
@@ -34,11 +36,18 @@ class ParrotZik(object):
 		return data.answer.system.battery["state"]
 
 	def getBatteryLevel(self):
-		data = self.sendGetMessage("/api/system/battery/get")
+		data = self.sendGetMessage("/api/system/battery/get")	
 		try:
-			return data.answer.system.battery["level"]
+			self.BatteryLevel = data.answer.system.battery["level"]
 		except:
-			return "0"
+			pass
+
+		try:
+			print "notification received" + data.notify["path"]
+		except:
+			pass
+
+		return self.BatteryLevel
 
 	def getVersion(self):
 		data = self.sendGetMessage("/api/software/version/get")
@@ -80,7 +89,7 @@ class ParrotZik(object):
 		self.sock.send(str(message))
 		data = self.sock.recv(7)
 		len = struct.unpack('B', data[1])[0]
-		data = self.sock.recv(len)
+		data = self.sock.recv(1024)
 		data=BeautifulSoup(data)
 		return data
 
