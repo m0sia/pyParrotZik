@@ -2,7 +2,6 @@
 
 import sys
 import gtk
-import appindicator
 import imaplib
 import re
 import os
@@ -12,14 +11,47 @@ UPDATE_FREQUENCY = 30 # seconds
 
 class ParrotZikIndicator:
     def __init__(self):
-        self.ind = appindicator.Indicator("new-parrotzik-indicator",
+
+        self.menu_setup()      
+        self.icon_directory = os.path.dirname(os.path.realpath(sys.argv[0])) + os.path.sep+'icons'+ os.path.sep
+        if sys.platform=="linux2":
+            import appindicator
+            self.statusicon = appindicator.Indicator("new-parrotzik-indicator",
                                            "indicator-messages",
                                            appindicator.CATEGORY_APPLICATION_STATUS)
-        self.ind.set_status(appindicator.STATUS_ACTIVE)
-        self.ind.set_icon("audio-headset")
-        self.menu_setup()
-        self.ind.set_menu(self.menu)
+            self.statusicon.set_status(appindicator.STATUS_ACTIVE)
+            self.statusicon.set_icon_theme_path(self.icon_directory)            
+            self.statusicon.set_menu(self.menu)
+        else:
+            print "Win32"
+            self.statusicon = gtk.StatusIcon()            
+            self.statusicon.connect("popup-menu", self.gtk_right_click_event)
+            self.statusicon.set_tooltip("Parrot Zik")
+            self.menu_shown=False
+        
+        self.setIcon("audio-headset")
         self.connected=False
+
+        self.p = re.compile('90:03:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}')
+
+        return
+
+    def pos(menu, ignore, icon):
+        return (Gtk.StatusIcon.position_menu(menu, icon))
+
+    def setIcon(self,   name):
+        if sys.platform=="linux2":
+            self.statusicon.set_icon(name)
+        else:
+            self.statusicon.set_from_file(self.icon_directory+name+'.png') 
+
+    def gtk_right_click_event(self, icon, button, time):
+        if not self.menu_shown:
+            self.menu_shown=True
+            self.menu.popup(None, None, gtk.status_icon_position_menu, button, time, self.statusicon)
+        else:
+            self.menu_shown=False
+            self.menu.popdown()
 
     def menu_setup(self):
         self.menu = gtk.Menu()
@@ -41,31 +73,57 @@ class ParrotZikIndicator:
         self.check2.show()
         self.menu.append(self.check2)
 
+        self.about = gtk.MenuItem()
+        self.about.set_label("About")
+        self.about.connect("activate", self.show_about_dialog)
+        self.about.show()
+        self.menu.append(self.about)
+
         self.quit_item = gtk.MenuItem("Quit")
         self.quit_item.connect("activate", self.quit)
         self.quit_item.show()
         self.menu.append(self.quit_item)
 
-    def findParrotZikMac(self):
-        out = os.popen("hcitool con").read()
-        p = re.compile('90:03:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}')
-        res = p.findall(out)
-        if len(res)>0:
-            return res[0]
+    def ParrotZikMac(self):
+        if sys.platform == "linux2":
+            out = os.popen("bluez-test-device list").read()
+            res = self.p.findall(out)
+            if len(res)>0:
+                return res[0]
+            else:
+                return ''          
         else:
-            return ''
+            import _winreg
+            aReg = _winreg.ConnectRegistry(None,_winreg.HKEY_LOCAL_MACHINE)
+            aKey = _winreg.OpenKey(aReg, 'SYSTEM\CurrentControlSet\Services\BTHPORT\Parameters\Devices')
+            for i in range(10):
+                try:
+                    asubkey_name=_winreg.EnumKey(aKey,i)
+                    mac =':'.join(asubkey_name[i:i+2] for i in range(0,12,2))
+                    res = self.p.findall(mac)
+                    if len(res)>0:
+                        return res[0]
+                    else:
+                        return ''
+                except EnvironmentError:
+                    break
+
 
     def EstablishConnection(self):
         if self.connected:
-            if not self.findParrotZikMac():
+            if not self.parrot.sock:
                 print "Lost connection"
                 self.connected = False
             else:
                 print "Connection already established"
         else:
-            mac=self.findParrotZikMac()
+            mac=self.ParrotZikMac()
             if mac:
                 self.parrot = ParrotZik.ParrotZik(mac)
+                if not self.parrot.sock:
+                    print "Can't connect to Parrot Zik %s" % mac
+                    return False
+
                 self.connected = True
                 self.name = self.parrot.getFriendlyName()
                 self.version = self.parrot.getVersion()
@@ -106,23 +164,32 @@ class ParrotZikIndicator:
             self.info_item.set_label("Connected to: "+self.name+
                                     "\nFirmware version: "+self.version+
                                     "\nBattery Level: "+str(self.batteryLevel)+"%")
-            if self.batteryLevel==100:
-                self.ind.set_icon("battery-100")
-            elif self.batteryLevel>80:
-                self.ind.set_icon("battery-080")
+            if self.batteryLevel>80:
+                self.setIcon("battery-100")
             elif self.batteryLevel>60:
-                self.ind.set_icon("battery-060")
-            elif self.batteryLevel>40:
-                self.ind.set_icon("battery-040")
+                self.setIcon("battery-080")
+            elif self.batteryLevel>40:                
+                self.setIcon("battery-060")
             elif self.batteryLevel>20:
-                self.ind.set_icon("battery-020")
+                self.setIcon("battery-040")
             else:
-                self.ind.set_icon("battery-caution")
+                self.setIcon("battery-low")
         else:
-            self.ind.set_icon("audio-headset")
+            self.setIcon("audio-headset")
             self.info_item.set_label("Parrot Zik Not connected..")
             self.check.set_sensitive(False)
+            self.check2.set_sensitive(False)
         return True
+
+    def show_about_dialog(self, widget):
+        about_dialog = gtk.AboutDialog()
+
+        about_dialog.set_destroy_with_parent(True)
+        about_dialog.set_name("Parrot Zik Tray")
+        about_dialog.set_version("0.1")
+        about_dialog.set_authors(["Dmitry Moiseev m0sia@m0sia.ru"])
+        about_dialog.run()
+        about_dialog.destroy()
 
     def main(self):
         self.EstablishConnection()
