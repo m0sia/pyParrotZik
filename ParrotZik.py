@@ -13,8 +13,7 @@ class ParrotZik(object):
 
 		if len(service_matches) == 0:
 		    print "Couldn't find Parrot Zik"
-		    self.sock = ''
-		    return
+		    return False
 
 		first_match = service_matches[0]
 		port = first_match["port"]
@@ -88,11 +87,7 @@ class ParrotZik(object):
 		return self.sendMessage(message)
 
 	def sendMessage(self,message):
-		try:
-			self.sock.send(str(message))
-		except:
-			self.sock = ''
-			return
+		self.sock.send(str(message))
 		data = self.sock.recv(7)
 		len = struct.unpack('B', data[1])[0]
 		data = self.sock.recv(1024)
