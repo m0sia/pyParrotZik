@@ -38,7 +38,8 @@ class ParrotZik(object):
 	def getBatteryLevel(self):
 		data = self.sendGetMessage("/api/system/battery/get")	
 		try:
-			self.BatteryLevel = data.answer.system.battery["level"]
+			if data.answer.system.battery["level"] <> '':
+				self.BatteryLevel = data.answer.system.battery["level"]
 		except:
 			pass
 
