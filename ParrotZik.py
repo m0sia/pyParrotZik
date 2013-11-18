@@ -30,6 +30,7 @@ class ParrotZik(object):
 		data = self.sock.recv(3)
 
 		self.BatteryLevel = 100
+		self.BatteryCharging = False
 		print "Connected"
 
 	def getBatteryState(self):
@@ -41,6 +42,10 @@ class ParrotZik(object):
 		try:
 			if data.answer.system.battery["level"] <> '':
 				self.BatteryLevel = data.answer.system.battery["level"]
+			if data.answer.system.battery["state"] == 'charging':
+				self.BatteryCharging = True
+			else:
+				self.BatteryCharging = False
 		except:
 			pass
 
