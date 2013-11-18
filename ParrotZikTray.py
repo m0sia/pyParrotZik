@@ -2,7 +2,6 @@
 
 import sys
 import gtk
-import imaplib
 import re
 import os
 import ParrotZik
@@ -13,9 +12,10 @@ class ParrotZikIndicator:
     def __init__(self):
 
         self.menu_setup()      
-        self.icon_directory = os.path.dirname(os.path.realpath(sys.argv[0])) + os.path.sep+'icons'+ os.path.sep
+                
         if sys.platform=="linux2":
             import appindicator
+            self.icon_directory = os.path.sep + 'usr' + os.path.sep+ 'share' + os.path.sep+'icons' + os.path.sep+'zik'+ os.path.sep
             self.statusicon = appindicator.Indicator("new-parrotzik-indicator",
                                            "indicator-messages",
                                            appindicator.CATEGORY_APPLICATION_STATUS)
@@ -24,10 +24,13 @@ class ParrotZikIndicator:
             self.statusicon.set_menu(self.menu)
         else:
             print "Win32"
+            self.icon_directory = os.path.dirname(os.path.realpath(sys.argv[0])) + os.path.sep+ 'share' + os.path.sep+'icons' + os.path.sep+'zik'+ os.path.sep
             self.statusicon = gtk.StatusIcon()            
             self.statusicon.connect("popup-menu", self.gtk_right_click_event)
             self.statusicon.set_tooltip("Parrot Zik")
-            self.menu_shown=False
+            self.menu_shown=False            
+            sys.stdout = open("debug.log", "w")
+            sys.stderr = open("debug.log", "w")
         
         self.setIcon("audio-headset")
         self.connected=False
@@ -121,7 +124,7 @@ class ParrotZikIndicator:
             if mac:
                 self.parrot = ParrotZik.ParrotZik(mac)
                 if not self.parrot.sock:
-                    print "Can't connect to Parrot Zik %s" % mac
+                    print "Failed to connect to Parrot Zik %s" % mac
                     return False
 
                 self.connected = True
@@ -165,17 +168,17 @@ class ParrotZikIndicator:
                                     "\nFirmware version: "+self.version+
                                     "\nBattery Level: "+str(self.batteryLevel)+"%")
             if self.batteryLevel>80:
-                self.setIcon("battery-100")
+                self.setIcon("zik-battery-100")
             elif self.batteryLevel>60:
-                self.setIcon("battery-080")
+                self.setIcon("zik-battery-080")
             elif self.batteryLevel>40:                
-                self.setIcon("battery-060")
+                self.setIcon("zik-battery-060")
             elif self.batteryLevel>20:
-                self.setIcon("battery-040")
+                self.setIcon("zik-battery-040")
             else:
-                self.setIcon("battery-low")
+                self.setIcon("zik-battery-low")
         else:
-            self.setIcon("audio-headset")
+            self.setIcon("zik-audio-headset")
             self.info_item.set_label("Parrot Zik Not connected..")
             self.check.set_sensitive(False)
             self.check2.set_sensitive(False)
