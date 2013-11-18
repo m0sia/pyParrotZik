@@ -12,7 +12,7 @@ class ParrotZik(object):
 		service_matches = bluetooth.find_service( uuid = uuid, address = addr )
 
 		if len(service_matches) == 0:
-		    print "Couldn't find Parrot Zik"
+		    print "Failed to find Parrot Zik RFCOMM service"
 		    self.sock =""
 		    return
 
@@ -92,6 +92,7 @@ class ParrotZik(object):
 			self.sock.send(str(message))
 		except:
 			self.sock =""
+			return
 		data = self.sock.recv(7)
 		len = struct.unpack('B', data[1])[0]
 		data = self.sock.recv(1024)
