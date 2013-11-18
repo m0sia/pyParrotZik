@@ -11,8 +11,8 @@ Compression=lzma
 SolidCompression=true
 AllowUNCPath=false
 VersionInfoVersion=0.1
-;VersionInfoCompany=
-;VersionInfoDescription=handytool
+VersionInfoCompany=m0sia
+VersionInfoDescription=ParrotZikTray
 ;PrivilegeRequired=admin
 
 [Dirs]
