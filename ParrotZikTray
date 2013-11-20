@@ -76,6 +76,18 @@ class ParrotZikIndicator:
         self.check2.show()
         self.menu.append(self.check2)
 
+        self.check3 = gtk.CheckMenuItem("Lou Reed Mode")
+        self.check3.connect("activate", self.toggleLouReedMode)
+        self.check3.set_sensitive(False)
+        self.check3.show()
+        self.menu.append(self.check3)
+
+        self.check4 = gtk.CheckMenuItem("Concert Hall Mode")
+        self.check4.connect("activate", self.toggleLouReedMode)
+        self.check4.set_sensitive(False)
+        self.check4.show()
+        self.menu.append(self.check4)
+
         self.about = gtk.MenuItem()
         self.about.set_label("About")
         self.about.connect("activate", self.show_about_dialog)
@@ -132,16 +144,29 @@ class ParrotZikIndicator:
                 self.version = self.parrot.getVersion()
 
                 self.check.set_sensitive(True)
+                self.check2.set_sensitive(True)
+                self.check3.set_sensitive(True)
+                self.check4.set_sensitive(True)
+
                 if self.parrot.getNoiseCancel() == "true":
                     self.check.set_active(True)
                 else:
                     self.check.set_active(False)
 
-                self.check2.set_sensitive(True)
                 if self.parrot.getAutoConnection() == "true":
                     self.check2.set_active(True)
                 else:
                     self.check2.set_active(False)
+
+                if self.parrot.getLouReedMode() == "true":
+                    self.check3.set_active(True)
+                else:
+                    self.check3.set_active(False)
+
+                if self.parrot.getParrotConcertHall() == "true":
+                    self.check4.set_active(True)
+                else:
+                    self.check4.set_active(False)
 
                 self.CheckBattery()
         return True
@@ -159,6 +184,39 @@ class ParrotZikIndicator:
                 self.parrot.setAutoConnection("true")
             else:
                 self.parrot.setAutoConnection("false")
+
+    def toggleLouReedMode(self,widget):
+        if self.connected:
+            if self.check3.get_active():
+                self.parrot.setLouReedMode("true")
+            else:
+                self.parrot.setLouReedMode("false")            
+            if self.parrot.getLouReedMode() == "true":
+                self.check3.set_active(True)
+            else:
+                self.check3.set_active(False)
+
+            if self.parrot.getParrotConcertHall() == "true":
+                self.check4.set_active(True)
+            else:
+                self.check4.set_active(False)
+
+    def toggleParrotConcertHall(self,widget):
+        if self.connected:
+            if self.check4.get_active():
+                self.parrot.setParrotConcertHall("true")
+            else:
+                self.parrot.setParrotConcertHall("false")
+            
+            if self.parrot.getLouReedMode() == "true":
+                self.check3.set_active(True)
+            else:
+                self.check3.set_active(False)
+
+            if self.parrot.getParrotConcertHall() == "true":
+                self.check4.set_active(True)
+            else:
+                self.check4.set_active(False)
 
     def CheckBattery(self):
         if self.connected:
@@ -195,6 +253,8 @@ class ParrotZikIndicator:
             self.info_item.set_label("Parrot Zik Not connected..")
             self.check.set_sensitive(False)
             self.check2.set_sensitive(False)
+            self.check3.set_sensitive(False)
+            self.check4.set_sensitive(False)
         return True
 
     def show_about_dialog(self, widget):
