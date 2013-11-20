@@ -84,6 +84,22 @@ class ParrotZik(object):
 		data = self.sendSetMessage("/api/audio/noise_cancellation/enabled/set",arg)
 		return data
 
+	def getLouReedMode(self):
+		data = self.sendGetMessage("/api/audio/specific_mode/enabled/get")
+		return data.answer.audio.specific_mode["enabled"]
+
+	def setLouReedMode(self,arg):
+		data = self.sendSetMessage("/api/audio/specific_mode/enabled/set",arg)
+		return data
+
+	def getParrotConcertHall(self):
+		data = self.sendGetMessage("/api/audio/sound_effect/enabled/get")
+		return data.answer.audio.sound_effect["enabled"]
+
+	def setParrotConcertHall(self,arg):
+		data = self.sendSetMessage("/api/audio/sound_effect/enabled/set",arg)
+		return data
+
 	def sendGetMessage(self,message):
 		message = ParrotProtocol.getRequest(message)
 		return self.sendMessage(message)
@@ -101,6 +117,7 @@ class ParrotZik(object):
 		data = self.sock.recv(7)
 		len = struct.unpack('B', data[1])[0]
 		data = self.sock.recv(1024)
+		print data
 		data=BeautifulSoup(data)
 		return data
 
