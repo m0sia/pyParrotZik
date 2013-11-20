@@ -117,7 +117,6 @@ class ParrotZik(object):
 		data = self.sock.recv(7)
 		len = struct.unpack('B', data[1])[0]
 		data = self.sock.recv(1024)
-		print data
 		data=BeautifulSoup(data)
 		return data
 
