@@ -118,8 +118,7 @@ class ParrotZikIndicator:
                     res = self.p.findall(mac)
                     if len(res)>0:
                         return res[0]
-                    else:
-                        return ''
+                        
                 except EnvironmentError:
                     break
 

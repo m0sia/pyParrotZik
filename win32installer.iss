@@ -1,6 +1,6 @@
 [Setup]
 AppName=Parrot Zik Tray
-AppVerName=Parrot Zik Tray 0.1
+AppVerName=Parrot Zik Tray 0.3
 AppPublisher=m0sia@m0sia.ru
 AppPublisherURL=https://github.com/m0sia/pyParrotZik
 DefaultDirName={pf}\ParrotZikTray
@@ -10,7 +10,7 @@ OutputBaseFilename=setup
 Compression=lzma
 SolidCompression=true
 AllowUNCPath=false
-VersionInfoVersion=0.1
+VersionInfoVersion=0.3
 VersionInfoCompany=m0sia
 VersionInfoDescription=ParrotZikTray
 ;PrivilegeRequired=admin

@@ -15,7 +15,7 @@ setup(
     maintainer_email="m0sia@m0sia.ru",
     url="https://github.com/m0sia/pyParrotZik",
     license="'GPLv2+'",
-    version = '0.2',
+    version = '0.3',
 
     windows = [
                   {
