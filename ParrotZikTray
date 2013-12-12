@@ -5,6 +5,7 @@ import gtk
 import re
 import os
 import ParrotZik
+import BluetoothPairedDevices
 
 UPDATE_FREQUENCY = 30 # seconds
 
@@ -99,30 +100,6 @@ class ParrotZikIndicator:
         self.quit_item.show()
         self.menu.append(self.quit_item)
 
-    def ParrotZikMac(self):
-        if sys.platform == "linux2":
-            out = os.popen("bluez-test-device list").read()
-            res = self.p.findall(out)
-            if len(res)>0:
-                return res[0]
-            else:
-                return ''          
-        else:
-            import _winreg
-            aReg = _winreg.ConnectRegistry(None,_winreg.HKEY_LOCAL_MACHINE)
-            aKey = _winreg.OpenKey(aReg, 'SYSTEM\CurrentControlSet\Services\BTHPORT\Parameters\Devices')
-            for i in range(10):
-                try:
-                    asubkey_name=_winreg.EnumKey(aKey,i)
-                    mac =':'.join(asubkey_name[i:i+2] for i in range(0,12,2))
-                    res = self.p.findall(mac)
-                    if len(res)>0:
-                        return res[0]
-                        
-                except EnvironmentError:
-                    break
-
-
     def EstablishConnection(self):
         if self.connected:
             if not self.parrot.sock:
@@ -131,7 +108,7 @@ class ParrotZikIndicator:
             else:
                 print "Connection already established"
         else:
-            mac=self.ParrotZikMac()
+            mac=BluetoothPairedDevices.ParrotZikMac()
             if mac:
                 self.parrot = ParrotZik.ParrotZik(mac)
                 if not self.parrot.sock:
