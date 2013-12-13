@@ -28,7 +28,7 @@ def ParrotZikMac():
 				try:
 					asubkey_name=_winreg.EnumKey(aKey,i)
 					mac =':'.join(asubkey_name[i:i+2] for i in range(0,12,2))
-					res = self.p.findall(mac)
+					res = p.findall(mac)
 					if len(res)>0:
 						return res[0]
 
