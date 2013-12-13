@@ -30,7 +30,7 @@ class ParrotZikIndicator(SysIndicator):
         self.check4 = MenuItem("Concert Hall Mode",self.toggleParrotConcertHall,sensitive = False, checkitem = True)
         self.menu.append(self.check4)
 
-        SysIndicator.__init__(self,icon = "audio-headset",menu = self.menu)
+        SysIndicator.__init__(self,icon = "zik-audio-headset",menu = self.menu)
 
         self.connected=False
         self.p = re.compile('90:03:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}')
