@@ -100,34 +100,17 @@ class ParrotZikIndicator(SysIndicator):
         if self.connected:
             if self.check3.get_active():
                 self.parrot.setLouReedMode("true")
+                self.check4.set_sensitive(False)
             else:
-                self.parrot.setLouReedMode("false")            
-            if self.parrot.getLouReedMode() == "true":
-                self.check3.set_active(True)
-            else:
-                self.check3.set_active(False)
-
-            if self.parrot.getParrotConcertHall() == "true":
-                self.check4.set_active(True)
-            else:
-                self.check4.set_active(False)
-
+                self.parrot.setLouReedMode("false")      
+                self.check4.set_sensitive(True)
+            
     def toggleParrotConcertHall(self,widget):
         if self.connected:
             if self.check4.get_active():
                 self.parrot.setParrotConcertHall("true")
             else:
                 self.parrot.setParrotConcertHall("false")
-            
-            if self.parrot.getLouReedMode() == "true":
-                self.check3.set_active(True)
-            else:
-                self.check3.set_active(False)
-
-            if self.parrot.getParrotConcertHall() == "true":
-                self.check4.set_active(True)
-            else:
-                self.check4.set_active(False)
 
     def CheckBattery(self):
         if self.connected:
