@@ -32,11 +32,8 @@ class SysIndicator:
             self.statusicon.connect("popup-menu", self.gtk_right_click_event)
             self.statusicon.set_tooltip("Parrot Zik")
             self.menu_shown=False            
-            sys.stdout = open("debug.log", "w")
-            sys.stderr = open("debug.log", "w")
         
         self.setIcon(icon)
-        return
 
     def setIcon(self, name):
         if sys.platform=="linux2":
