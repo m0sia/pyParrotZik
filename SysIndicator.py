@@ -16,6 +16,8 @@ class SysIndicator:
             self.menu = menu.gtk_menu
             import appindicator
             self.icon_directory = os.path.sep + 'usr' + os.path.sep+ 'share' + os.path.sep+'icons' + os.path.sep+'zik'+ os.path.sep
+            if not os.path.isdir(self.icon_directory):
+							self.icon_directory = os.path.dirname(sys.argv[0]) + os.path.sep + 'share' + os.path.sep+'icons' + os.path.sep+'zik'+ os.path.sep
             self.statusicon = appindicator.Indicator("new-parrotzik-indicator",
                                            "indicator-messages",
                                            appindicator.CATEGORY_APPLICATION_STATUS)
