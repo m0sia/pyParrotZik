@@ -17,9 +17,12 @@ def ParrotZikMac():
 			fd = open("/Library/Preferences/com.apple.Bluetooth.plist", "rb")
 			plist = binplist.BinaryPlist(file_obj=fd)
 			parsed_plist = plist.Parse()
-			for mac in parsed_plist['PairedDevices']:
-				if p.match(mac.replace("-",":")):
-					return mac.replace("-",":")
+			try :
+				for mac in parsed_plist['PairedDevices']:
+					if p.match(mac.replace("-",":")):
+						return mac.replace("-",":")
+			except:
+				pass	
 
 		elif sys.platform == "win32":
 			aReg = _winreg.ConnectRegistry(None,_winreg.HKEY_LOCAL_MACHINE)
