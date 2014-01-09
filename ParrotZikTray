@@ -18,6 +18,15 @@ class ParrotZikIndicator(SysIndicator):
         self.info_item = MenuItem("Parrot Zik Not connected..",None,sensitive = False)  
         self.menu.append(self.info_item)
 
+        self.battery_level = MenuItem("Battery Level:",None,sensitive = False)
+        self.menu.append(self.battery_level)
+
+        self.battery_state = MenuItem("Battery State:",None,sensitive = False) 
+        self.menu.append(self.battery_state)
+
+        self.firmware_version = MenuItem("Firmware Version:",None,sensitive = False)  
+        self.menu.append(self.firmware_version)
+
         self.check = MenuItem("Noise Cancellation",self.toggleANC,sensitive = False, checkitem = True)
         self.menu.append(self.check)
 
@@ -29,6 +38,9 @@ class ParrotZikIndicator(SysIndicator):
 
         self.check4 = MenuItem("Concert Hall Mode",self.toggleParrotConcertHall,sensitive = False, checkitem = True)
         self.menu.append(self.check4)
+
+        self.quit = MenuItem("Quit",sys.exit,sensitive = True, checkitem = True)
+        self.menu.append(self.quit)
 
         SysIndicator.__init__(self,icon = "zik-audio-headset",menu = self.menu)
 
@@ -138,10 +150,10 @@ class ParrotZikIndicator(SysIndicator):
                 self.setIcon("zik-battery-low")
                 self.batteryState="In Use"
 
-            self.info_item.set_label("Connected to: "+self.name+
-                                    "\nFirmware version: "+self.version+
-                                    "\nState: "+self.batteryState+
-                                    "\nBattery Level: "+str(self.batteryLevel))
+            self.info_item.set_label("Connected to: "+self.name)
+            self.firmware_version.set_label("Firmware version: "+self.version)
+            self.battery_state.set_label("State: "+self.batteryState)
+            self.battery_level.set_label("Battery Level: "+str(self.batteryLevel))
         else:
             self.setIcon("zik-audio-headset")
             self.info_item.set_label("Parrot Zik Not connected..")
