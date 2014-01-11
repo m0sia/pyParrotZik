@@ -134,7 +134,10 @@ class ParrotZik(object):
 		except:
 			self.sock =""
 			return
-		data = self.sock.recv(7)
+		if sys.platform == "darwin":
+			data = self.sock.recv(30)
+		else:
+			data = self.sock.recv(7)
 		data = self.sock.recv(1024)
 		data=BeautifulSoup(data)
 		return data
