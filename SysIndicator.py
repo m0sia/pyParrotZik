@@ -105,8 +105,6 @@ class UniversalMenu:
     def __init__(self):
         if sys.platform=="linux2" or sys.platform=="win32":
             self.gtk_menu = gtk.Menu()
-            self.gtk_quite_item = MenuItem("Quit",sys.exit).gtk_item
-            self.gtk_menu.append(self.gtk_quite_item)
         elif sys.platform=="darwin":
             self.actions = {}
             self.menubarMenu = NSMenu.alloc().init()
@@ -115,9 +113,7 @@ class UniversalMenu:
 
     def append(self,MenuItem):
         if sys.platform=="linux2" or sys.platform=="win32":
-            self.gtk_menu.remove(self.gtk_quite_item)
             self.gtk_menu.append(MenuItem.gtk_item)
-            self.gtk_menu.append(self.gtk_quite_item)
         elif sys.platform=="darwin":
             self.actions[MenuItem.title] = MenuItem.action
             self.menubarMenu.addItem_(MenuItem.nsmenu_item)
