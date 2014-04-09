@@ -21,6 +21,14 @@ https://dl.dropboxusercontent.com/u/4907241/setup.exe
 1. Connect Parrot Zik with standard bluetooth connection 
 2. Run applet ./ParrotZikTray.py
 
+### Requirement
+
+Python-bluez is needed. On ubuntu based distro run
+
+````
+sudo apt-get install python-bluez
+````
+
 ## Screenshots
 
 ![ScreenShot](https://dl.dropboxusercontent.com/u/4907241/ParrotZikTray.png "Unity App Indicator Applet")
