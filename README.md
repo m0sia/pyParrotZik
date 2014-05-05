@@ -13,7 +13,7 @@ Python Parrot Zik and simple unity app indicator applet.
 
 1. Connect Parrot Zik with standard windows GUI
 2. Install Parrot Tray Zik
-https://dl.dropboxusercontent.com/u/4907241/setup.exe
+http://goo.gl/dXij2t
 3. Run ParrotZikTray.exe
 
 ## Tray Indicator Applet Usage
