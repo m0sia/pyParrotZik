@@ -119,8 +119,10 @@ class ParrotZikBaseInterface(object):
         self.firmware_version.show()
         self.auto_connection.show()
 
-        self.name = self.parrot.friendly_name
-        self.version = self.parrot.version
+        self.indicator.info_item.set_label("Connected to: "
+                                           + self.parrot.friendly_name)
+        self.firmware_version.set_label(
+            "Firmware version: " + self.parrot.version)
 
         self.auto_connection.set_active(self.parrot.auto_connect)
 
@@ -162,9 +164,6 @@ class ParrotZikBaseInterface(object):
             else:
                 self.indicator.setIcon("zik-battery-low")
 
-            self.indicator.info_item.set_label("Connected to: " + self.name)
-            self.firmware_version.set_label(
-                "Firmware version: " + self.version)
             self.battery_state.set_label(
                 "State: " + BatteryStates.representation[battery_state])
             self.battery_level.set_label(
