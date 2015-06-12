@@ -143,7 +143,39 @@ class ParrotZikBaseInterface(object):
             self.auto_connection.set_active(self.parrot.auto_connection)
 
     def refresh(self):
-        raise NotImplementedError
+        if self.connected:
+            print "Updating battery"
+            self.batteryLevel = int(self.parrot.battery_level)
+
+            if self.parrot.BatteryCharging:
+                self.batteryLevel = "Charging"
+                self.indicator.setIcon("zik-battery-charging")
+                self.batteryLevel = "Unknown"
+                self.batteryState = "Charging"
+            elif self.batteryLevel > 80:
+                self.indicator.setIcon("zik-battery-100")
+                self.batteryState = "In Use"
+            elif self.batteryLevel > 60:
+                self.indicator.setIcon("zik-battery-080")
+                self.batteryState = "In Use"
+            elif self.batteryLevel > 40:
+                self.indicator.setIcon("zik-battery-060")
+                self.batteryState = "In Use"
+            elif self.batteryLevel > 20:
+                self.indicator.setIcon("zik-battery-040")
+                self.batteryState = "In Use"
+            else:
+                self.indicator.setIcon("zik-battery-low")
+                self.batteryState = "In Use"
+
+            self.indicator.info_item.set_label("Connected to: " + self.name)
+            self.firmware_version.set_label(
+                "Firmware version: " + self.version)
+            self.battery_state.set_label("State: " + self.batteryState)
+            self.battery_level.set_label(
+                "Battery Level: " + str(self.batteryLevel))
+        else:
+            self.deactivate()
 
 
 class ParrotZikVersion1Interface(ParrotZikBaseInterface):
@@ -193,41 +225,6 @@ class ParrotZikVersion1Interface(ParrotZikBaseInterface):
         if self.connected:
             self.parrot.concert_hall = self.concert_hall_mode.get_active()
             self.concert_hall_mode.set_active(self.parrot.concert_hall)
-
-    def refresh(self):
-        if self.connected:
-            print "Updating battery"
-            self.batteryLevel = int(self.parrot.battery_level)
-
-            if self.parrot.BatteryCharging:
-                self.batteryLevel = "Charging"
-                self.indicator.setIcon("zik-battery-charging")
-                self.batteryLevel = "Unknown"
-                self.batteryState = "Charging"
-            elif self.batteryLevel > 80:
-                self.indicator.setIcon("zik-battery-100")
-                self.batteryState = "In Use"
-            elif self.batteryLevel > 60:
-                self.indicator.setIcon("zik-battery-080")
-                self.batteryState = "In Use"
-            elif self.batteryLevel > 40:
-                self.indicator.setIcon("zik-battery-060")
-                self.batteryState = "In Use"
-            elif self.batteryLevel > 20:
-                self.indicator.setIcon("zik-battery-040")
-                self.batteryState = "In Use"
-            else:
-                self.indicator.setIcon("zik-battery-low")
-                self.batteryState = "In Use"
-
-            self.indicator.info_item.set_label("Connected to: " + self.name)
-            self.firmware_version.set_label(
-                "Firmware version: " + self.version)
-            self.battery_state.set_label("State: " + self.batteryState)
-            self.battery_level.set_label(
-                "Battery Level: " + str(self.batteryLevel))
-        else:
-            self.deactivate()
 
 
 class ParrotZikVersion2Interface(ParrotZikBaseInterface):
@@ -296,41 +293,6 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
 
     def toggledummy(self, widget):
         print(widget.get_name())
-
-    def refresh(self):
-        if self.connected:
-            print "Updating battery"
-            self.batteryLevel = int(self.parrot.battery_level)
-
-            if self.parrot.BatteryCharging:
-                self.batteryLevel = "Charging"
-                self.indicator.setIcon("zik-battery-charging")
-                self.batteryLevel = "Unknown"
-                self.batteryState = "Charging"
-            elif self.batteryLevel > 80:
-                self.indicator.setIcon("zik-battery-100")
-                self.batteryState = "In Use"
-            elif self.batteryLevel > 60:
-                self.indicator.setIcon("zik-battery-080")
-                self.batteryState = "In Use"
-            elif self.batteryLevel > 40:
-                self.indicator.setIcon("zik-battery-060")
-                self.batteryState = "In Use"
-            elif self.batteryLevel > 20:
-                self.indicator.setIcon("zik-battery-040")
-                self.batteryState = "In Use"
-            else:
-                self.indicator.setIcon("zik-battery-low")
-                self.batteryState = "In Use"
-
-            self.indicator.info_item.set_label("Connected to: " + self.name)
-            self.firmware_version.set_label(
-                "Firmware version: " + self.version)
-            self.battery_state.set_label("State: " + self.batteryState)
-            self.battery_level.set_label(
-                "Battery Level: " + str(self.batteryLevel))
-        else:
-            self.deactivate()
 
 if __name__ == "__main__":
     indicator = ParrotZikIndicator()
