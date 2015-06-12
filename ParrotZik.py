@@ -204,3 +204,45 @@ class ParrotZikVersion2(ParrotZikBase):
     @flight_mode.setter
     def flight_mode(self, arg):
         self.api.set('/api/flight_mode/enable', arg)
+
+    @property
+    def room_size(self):
+        data = self.api.get('/api/audio/sound_effect/room_size/get')
+        return data.answer.audio.sound_effect['room_size']
+
+    @room_size.setter
+    def room_size(self, arg):
+        self.api.set('/api/audio/sound_effect/room_size/set', arg)
+
+    @property
+    def external_noise(self):
+        data = self.api.get('/api/audio/noise/get')
+        return int(data.answer.audio.noise['external'])
+
+    @property
+    def internal_noise(self):
+        data = self.api.get('/api/audio/noise/get')
+        return int(data.answer.audio.noise['internal'])
+
+    @property
+    def angle(self):
+        data = self.api.get('/api/audio/sound_effect/angle/get')
+        return int(data.answer.audio.sound_effect['angle'])
+
+    @angle.setter
+    def angle(self, arg):
+        self.api.set('/api/audio/sound_effect/angle/set', arg)
+
+    @property
+    def noise_control(self):
+        data = self.api.get('/api/audio/noise_control/get')
+        return self._result_to_bool(data.answer.audio.noise_control['value'])
+
+    @noise_control.setter
+    def noise_control(self, arg):
+        self.api.set('/api/audio/noise_control/set', arg)
+
+    @property
+    def noise_control_enabled(self):
+        data = self.api.get('/api/audio/noise_control/enabled/get')
+        return self._result_to_bool(data.answer.audio.noise_control['enabled'])
