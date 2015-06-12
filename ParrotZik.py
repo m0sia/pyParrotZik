@@ -5,7 +5,6 @@ else:
     import bluetooth
 
 import ParrotProtocol
-import struct
 from BeautifulSoup import BeautifulSoup
 
 class ParrotZik(object):

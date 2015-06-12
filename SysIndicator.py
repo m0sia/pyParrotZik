@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 
 import sys
-import re
 import os
 import tempfile
 
 if sys.platform=="linux2" or sys.platform=="win32":
     import gtk
 elif sys.platform=="darwin":
-    import objc
     from Foundation import *
     from AppKit import *
     from PyObjCTools import AppHelper

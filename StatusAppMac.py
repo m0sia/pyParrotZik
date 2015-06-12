@@ -1,7 +1,5 @@
-import objc
 from Foundation import *
 from AppKit import *
-from PyObjCTools import AppHelper
 
 class StatusApp(NSApplication):
 
