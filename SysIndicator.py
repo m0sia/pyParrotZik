@@ -13,58 +13,11 @@ elif sys.platform == "darwin":
     from StatusAppMac import StatusApp
 
 
-class SysIndicator:
-    def __init__(self, icon, menu):
-        if sys.platform == "linux2":
-            self.menu = menu.gtk_menu
-            import appindicator
-            self.icon_directory = (os.path.sep + 'usr' + os.path.sep + 'share'
-                                   + os.path.sep + 'icons' + os.path.sep+'zik'
-                                   + os.path.sep)
-            if not os.path.isdir(self.icon_directory):
-                self.icon_directory = (os.path.dirname(sys.argv[0])
-                                       + os.path.sep + 'share' + os.path.sep
-                                       + 'icons' + os.path.sep+'zik'
-                                       + os.path.sep)
-            self.statusicon = appindicator.Indicator(
-                "new-parrotzik-indicator", "indicator-messages",
-                appindicator.CATEGORY_APPLICATION_STATUS)
-            self.statusicon.set_status(appindicator.STATUS_ACTIVE)
-            self.statusicon.set_icon_theme_path(self.icon_directory)
-            self.statusicon.set_menu(self.menu)          
-            
-        elif sys.platform == "win32":
-            self.menu = menu.gtk_menu          
-            self.icon_directory = (
-                os.path.dirname(os.path.realpath(sys.argv[0]))
-                + os.path.sep + 'share' + os.path.sep+'icons'
-                + os.path.sep +'zik' + os.path.sep)
-            self.statusicon = gtk.StatusIcon()            
-            self.statusicon.connect("popup-menu", self.gtk_right_click_event)
-            self.statusicon.set_tooltip("Parrot Zik")
-            self.menu_shown = False
-            sys.stdout = open(tempfile.gettempdir()
-                              + os.path.sep+"zik_tray_stdout.log", "w")
-            sys.stderr = open(tempfile.gettempdir()
-                              + os.path.sep+"zik_tray_stderr.log", "w")
-
-        elif sys.platform == "darwin":
-            self.icon_directory = (
-                os.path.dirname(os.path.realpath(sys.argv[0])) + os.path.sep
-                + 'share' + os.path.sep + 'icons' + os.path.sep + 'zik'
-                + os.path.sep)
-            self.statusicon = StatusApp.sharedApplication()
-            self.statusicon.initMenu(menu)
-        
+class BaseIndicator(object):
+    def __init__(self, icon, menu, statusicon):
+        self.menu = menu
+        self.statusicon = statusicon
         self.setIcon(icon)
-
-    def setIcon(self, name):
-        if sys.platform == "linux2":
-            self.statusicon.set_icon(name)
-        elif sys.platform == "win32":
-            self.statusicon.set_from_file(self.icon_directory + name + '.png')
-        elif sys.platform == "darwin":
-            self.statusicon.setIcon(name, self.icon_directory)
 
     def gtk_right_click_event(self, icon, button, time):
         if not self.menu_shown:
@@ -75,60 +28,131 @@ class SysIndicator:
             self.menu_shown = False
             self.menu.popdown()
 
+    def setIcon(self, name):
+        raise NotImplementedError
+
     def main(self):
-        if sys.platform == "linux2" or sys.platform == "win32":
-            gtk.main()       
-        elif sys.platform == "darwin":
-            #self.statusicon.run()
-            AppHelper.runEventLoop()
+        raise NotImplementedError
 
     def show_about_dialog(self, widget):
-        if sys.platform == "linux2" or sys.platform == "win32":
-            about_dialog = gtk.AboutDialog()
-            about_dialog.set_destroy_with_parent(True)
-            about_dialog.set_name("Parrot Zik Tray")
-            about_dialog.set_version("0.3")
-            about_dialog.set_authors(["Dmitry Moiseev m0sia@m0sia.ru"])
-            about_dialog.run()
-            about_dialog.destroy()
+        raise NotImplementedError
 
-    
-class UniversalMenu:
+
+class WindowsIndicator(BaseIndicator):
+    def __init__(self, icon, menu):
+        self.icon_directory = (
+            os.path.dirname(os.path.realpath(sys.argv[0]))
+            + os.path.sep + 'share' + os.path.sep + 'icons'
+            + os.path.sep +'zik' + os.path.sep)
+        self.menu_shown = False
+        sys.stdout = open(tempfile.gettempdir()
+                          + os.path.sep + "zik_tray_stdout.log", "w")
+        sys.stderr = open(tempfile.gettempdir()
+                          + os.path.sep + "zik_tray_stderr.log", "w")
+        statusicon = gtk.StatusIcon()
+        statusicon.connect("popup-menu", self.gtk_right_click_event)
+        statusicon.set_tooltip("Parrot Zik")
+        super(WindowsIndicator, self).__init__(icon, menu, statusicon)
+
+    def setIcon(self, name):
+        self.statusicon.set_from_file(self.icon_directory + name + '.png')
+
+    def main(self):
+        gtk.main()
+
+    def show_about_dialog(self, widget):
+        about_dialog = gtk.AboutDialog()
+        about_dialog.set_destroy_with_parent(True)
+        about_dialog.set_name("Parrot Zik Tray")
+        about_dialog.set_version("0.3")
+        about_dialog.set_authors(["Dmitry Moiseev m0sia@m0sia.ru"])
+        about_dialog.run()
+        about_dialog.destroy()
+
+
+class LinuxIndicator(BaseIndicator):
+    def __init__(self, icon, menu):
+        import appindicator
+        self.icon_directory = (os.path.sep + 'usr' + os.path.sep + 'share'
+                               + os.path.sep + 'icons' + os.path.sep+'zik'
+                               + os.path.sep)
+        if not os.path.isdir(self.icon_directory):
+            self.icon_directory = (os.path.dirname(sys.argv[0])
+                                   + os.path.sep + 'share' + os.path.sep
+                                   + 'icons' + os.path.sep+'zik'
+                                   + os.path.sep)
+        statusicon = appindicator.Indicator(
+            "new-parrotzik-indicator", "indicator-messages",
+            appindicator.CATEGORY_APPLICATION_STATUS)
+        statusicon.set_status(appindicator.STATUS_ACTIVE)
+        statusicon.set_icon_theme_path(self.icon_directory)
+        statusicon.set_menu(menu.gtk_menu)
+        super(LinuxIndicator, self).__init__(icon, menu, statusicon)
+
+    def setIcon(self, name):
+        self.statusicon.set_icon(name)
+
+    def main(self):
+        gtk.main()
+
+    def show_about_dialog(self, widget):
+        about_dialog = gtk.AboutDialog()
+        about_dialog.set_destroy_with_parent(True)
+        about_dialog.set_name("Parrot Zik Tray")
+        about_dialog.set_version("0.3")
+        about_dialog.set_authors(["Dmitry Moiseev m0sia@m0sia.ru"])
+        about_dialog.run()
+        about_dialog.destroy()
+
+
+class DarwinIndicator(BaseIndicator):
+    def __init__(self, icon, menu):
+        self.icon_directory = (
+            os.path.dirname(os.path.realpath(sys.argv[0])) + os.path.sep
+            + 'share' + os.path.sep + 'icons' + os.path.sep + 'zik'
+            + os.path.sep)
+        statusicon = StatusApp.sharedApplication()
+        statusicon.initMenu(menu)
+        super(DarwinIndicator, self).__init__(icon, menu, statusicon)
+
+    def setIcon(self, name):
+        self.statusicon.setIcon(name, self.icon_directory)
+
+    def main(self):
+        AppHelper.runEventLoop()
+
+    def show_about_dialog(self, widget):
+        pass
+
+
+class NSMenu(object):
     def __init__(self):
-        if sys.platform == "linux2" or sys.platform == "win32":
-            self.gtk_menu = gtk.Menu()
-        elif sys.platform == "darwin":
-            self.actions = {}
-            self.menubarMenu = NSMenu.alloc().init()
-            self.menubarMenu.setAutoenablesItems_(False)
+        self.actions = {}
+        self.menubarMenu = NSMenu.alloc().init()
+        self.menubarMenu.setAutoenablesItems_(False)
 
-    def append(self, MenuItem):
-        if sys.platform == "linux2" or sys.platform == "win32":
-            self.gtk_menu.append(MenuItem.gtk_item)
-        elif sys.platform == "darwin":
-            self.actions[MenuItem.title] = MenuItem.action
-            self.menubarMenu.addItem_(MenuItem.nsmenu_item)
+    def append(self, menu_item):
+        self.actions[menu_item.title] = menu_item.action
+        self.menubarMenu.addItem_(menu_item.nsmenu_item)
 
     def reposition(self):
-        if sys.platform == "linux2" or sys.platform == "win32":
-            self.gtk_menu.reposition()
+        #  TODO
+        pass
 
-class MenuItem:
-    def __init__(self, name, action, sensitive=True, checkitem=False, visible=True):
-        if sys.platform == "linux2" or sys.platform == "win32":
-            if checkitem:
-                self.gtk_item = gtk.CheckMenuItem(name)
-            else:
-                self.gtk_item = gtk.MenuItem(name)
-            if action:
-                self.gtk_item.connect("activate", action)
+class GTKMenu(object):
+    def __init__(self):
+        self.gtk_menu = gtk.Menu()
 
-        elif sys.platform == "darwin":
-            self.title = name
-            self.action = action
-            self.nsmenu_item = (
-                NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-                    name, 'clicked:', ''))
+    def append(self, menu_item):
+        self.gtk_menu.append(menu_item.base_item)
+
+    def reposition(self):
+        self.gtk_menu.reposition()
+
+
+class MenuItemBase(object):
+    def __init__(self, base_item, sensitive, visible):
+        self.base_item = base_item
         self.set_sensitive(sensitive)
         if visible:
             self.show()
@@ -136,49 +160,88 @@ class MenuItem:
             self.hide()
 
     def set_sensitive(self, option):
-        if sys.platform == "linux2" or sys.platform == "win32":
-            return self.gtk_item.set_sensitive(option)
-        elif sys.platform == "darwin":
-            self.nsmenu_item.setEnabled_(option)
+        raise NotImplementedError
 
     def set_active(self, option):
-        if sys.platform == "linux2" or sys.platform == "win32":
-            return self.gtk_item.set_active(option)
-        elif sys.platform == "darwin":
-            self.nsmenu_item.setState_(option)
+        raise NotImplementedError
 
     def get_active(self):
-        if sys.platform == "linux2" or sys.platform == "win32":
-            return self.gtk_item.get_active()
-        elif sys.platform == "darwin":
-            print self.nsmenu_item.state
-            return self.nsmenu_item.state
+        raise NotImplementedError
 
     def set_label(self, option):
-        if sys.platform == "linux2" or sys.platform == "win32":
-            return self.gtk_item.set_label(option)
-        elif sys.platform == "darwin":
-            self.title = option
-            self.nsmenu_item.setTitle_(option)
-            #self.rumps_item.title=option
+        raise NotImplementedError
 
     def show(self):
-        if sys.platform == "linux2" or sys.platform == "win32":
-            self.gtk_item.show()
-        elif sys.platform == "darwin":
-            self.nsmenu_item.show()
+        self.base_item.show()
 
     def hide(self):
-        if sys.platform == "linux2" or sys.platform == "win32":
-            self.gtk_item.hide()
-        elif sys.platform == "darwin":
-            self.nsmenu_item.hide()
+        self.base_item.hide()
+
+class GTKMenuItem(MenuItemBase):
+    def __init__(self, name, action, sensitive=True, checkitem=False, visible=True):
+        if checkitem:
+            gtk_item = gtk.CheckMenuItem(name)
+        else:
+            gtk_item = gtk.MenuItem(name)
+        if action:
+            gtk_item.connect("activate", action)
+        super(GTKMenuItem, self).__init__(gtk_item, sensitive, visible)
+
+    def set_sensitive(self, option):
+        return self.base_item.set_sensitive(option)
+
+    def set_active(self, option):
+        return self.base_item.set_active(option)
+
+    def get_active(self):
+        return self.base_item.get_active()
+
+    def set_label(self, option):
+        return self.base_item.set_label(option)
+
+
+class NSMenuItem(MenuItemBase):
+    def __init__(self, name, action, sensitive=True, checkitem=False, visible=True):
+        self.title = name
+        self.action = action
+        nsmenu_item = (
+            NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+                name, 'clicked:', ''))
+        super(NSMenuItem, self).__init__(nsmenu_item, sensitive, visible)
+
+    def set_sensitive(self, option):
+        self.base_item.setEnabled_(option)
+
+    def set_active(self, option):
+        self.base_item.setState_(option)
+
+    def get_active(self):
+        return self.base_item.state
+
+    def set_label(self, option):
+        self.title = option
+        self.base_item.setTitle_(option)
+
+if sys.platform == 'linux2':
+    SysIndicator = LinuxIndicator
+    Menu = GTKMenu
+    MenuItem = GTKMenuItem
+elif sys.platform == 'win32':
+    SysIndicator = WindowsIndicator
+    Menu = GTKMenu
+    MenuItem = GTKMenuItem
+elif sys.platform == 'darwin':
+    SysIndicator = DarwinIndicator
+    Menu = NSMenu
+    MenuItem = NSMenuItem
+else:
+    raise Exception('Platform not supported')
 
 if __name__ == "__main__":
 
     quit_item = MenuItem("Quit", sys.exit, True)
 
-    menu = UniversalMenu()
+    menu = Menu()
     menu.append(quit_item)
 
     indicator = SysIndicator(icon="zik-audio-headset", menu=menu)

@@ -4,7 +4,7 @@ import gtk
 import ParrotZik
 import BluetoothPairedDevices
 from SysIndicator import MenuItem
-from SysIndicator import UniversalMenu
+from SysIndicator import Menu
 from SysIndicator import SysIndicator
 
 REFRESH_FREQUENCY = 1000
@@ -37,7 +37,7 @@ class Stop(Exception):
 class ParrotZikIndicator(SysIndicator):
     def __init__(self):
  
-        self.menu = UniversalMenu()
+        self.menu = Menu()
 
         self.info_item = MenuItem("Parrot Zik Not connected..",
                                   None, sensitive=False)
