@@ -4,8 +4,9 @@ import ParrotZik
 import BluetoothPairedDevices
 from SysIndicator import *
 
-UPDATE_FREQUENCY = 1000
+REFRESH_FREQUENCY = 1000
 RECONNECT_FREQUENCY = 5000
+
 
 class repeat(object):
     def __init__(self, f):
@@ -48,35 +49,35 @@ class ParrotZikIndicator(SysIndicator):
         self.active_interface = None
 
     @repeat
-    def EstablishConnection(self):
+    def reconnect(self):
         if self.active_interface:
             if not self.active_interface.parrot.sock:
                 print "Lost connection"
                 self.active_interface.deactivate()
             else:
-                self.EstablishConnection.stop()
+                self.reconnect.stop()
         else:
             mac = BluetoothPairedDevices.ParrotZikMac()
             if mac:
                 parrot = ParrotZik.ParrotZik(mac)
                 if parrot.sock:
                     self.version_1_interface.activate(parrot)
-                    self.CheckBattery.start(self, UPDATE_FREQUENCY)
-                    self.EstablishConnection.stop()
+                    self.autorefresh.start(self, REFRESH_FREQUENCY)
+                    self.reconnect.stop()
                     print "Connected"
                 else:
                     print "Failed to connect to Parrot Zik %s" % mac
 
     @repeat
-    def CheckBattery(self):
+    def autorefresh(self):
         if self.active_interface:
-            self.active_interface.CheckBattery()
+            self.active_interface.refresh()
         else:
-            self.EstablishConnection.start(self, RECONNECT_FREQUENCY)
-            self.CheckBattery.stop()
+            self.reconnect.start(self, RECONNECT_FREQUENCY)
+            self.autorefresh.stop()
 
     def main(self):
-        self.EstablishConnection.start(self, RECONNECT_FREQUENCY)
+        self.reconnect.start(self, RECONNECT_FREQUENCY)
         SysIndicator.main(self)
 
 class ParrotZikBaseInterface(object):
@@ -204,7 +205,7 @@ class ParrotZikVersion1Interface(ParrotZikBaseInterface):
             else:
                 self.parrot.concert_hall = "false"
 
-    def CheckBattery(self):
+    def refresh(self):
         if self.connected:
             print "Updating battery"
             self.batteryLevel = int(self.parrot.battery_level)
