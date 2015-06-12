@@ -107,9 +107,9 @@ class ParrotZikIndicator(SysIndicator):
     def toggleANC(self, widget):
         if self.connected:
             if self.check.get_active():
-                self.parrot.setNoiseCancel("true")
+                self.parrot.noise_cancel = "true"
             else:
-                self.parrot.setNoiseCancel("false")
+                self.parrot.noise_cancel = "false"
 
     def toggleAuto(self, widget):
         if self.connected:

@@ -9,13 +9,18 @@ from BeautifulSoup import BeautifulSoup
 
 class ParrotZik(object):
     def __init__(self, addr=None):
-        uuid = "0ef0f502-f0ee-46c9-986c-54ed027807fb"
+        uuids = ["0ef0f502-f0ee-46c9-986c-54ed027807fb",
+                 "8B6814D3-6CE7-4498-9700-9312C1711F63"]
 
         if sys.platform == "darwin":
             service_matches = lightblue.findservices(
                 name="Parrot RFcomm service", addr=addr)
         else:
-            service_matches = bluetooth.find_service(uuid=uuid, address=addr)
+            for uuid in uuids:
+                service_matches = bluetooth.find_service(uuid=uuid,
+                                                         address=addr)
+                if service_matches:
+                    break
 
         if len(service_matches) == 0:
             print "Failed to find Parrot Zik RFCOMM service"
@@ -77,7 +82,10 @@ class ParrotZik(object):
     @property
     def version(self):
         data = self.get("/api/software/version/get")
-        return data.answer.software["version"]    
+        try:
+            return data.answer.software["version"]
+        except KeyError:
+            return data.answer.software['sip6']
 
     @property
     def friendly_name(self):
@@ -110,7 +118,10 @@ class ParrotZik(object):
     @property
     def lou_reed_mode(self):
         data = self.get("/api/audio/specific_mode/enabled/get")
-        return data.answer.audio.specific_mode["enabled"]
+        try:
+            return data.answer.audio.specific_mode["enabled"]
+        except TypeError:
+            pass
 
     @lou_reed_mode.setter
     def lou_reed_mode(self, arg):
