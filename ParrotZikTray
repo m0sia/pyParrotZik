@@ -79,31 +79,22 @@ class ParrotZikIndicator(SysIndicator):
         self.EstablishConnection.start(self, RECONNECT_FREQUENCY)
         SysIndicator.main(self)
 
-class ParrotZikVersion1Interface:
+class ParrotZikBaseInterface(object):
     def __init__(self, indicator):
         self.indicator = indicator
+        self.parrot = None
         self.battery_level = MenuItem("Battery Level:", None, sensitive=False,
                                       visible=False)
         self.battery_state = MenuItem("Battery State:", None, sensitive=False,
                                       visible=False)
         self.firmware_version = MenuItem("Firmware Version:", None,
                                          sensitive=False, visible=False)
-        self.noise_cancelation = MenuItem("Noise Cancellation", self.toggleANC,
-                                          checkitem=True, visible=False)
         self.auto_connection = MenuItem("Auto Connection", self.toggleAuto,
                                         checkitem=True, visible=False)
-        self.lou_reed_mode = MenuItem("Lou Reed Mode", self.toggleLouReedMode,
-                                      checkitem=True, visible=False)
-        self.concert_hall_mode = MenuItem(
-            "Concert Hall Mode", self.toggleParrotConcertHall,
-            checkitem=True, visible=False)
         self.indicator.menu.append(self.battery_level)
         self.indicator.menu.append(self.battery_state)
         self.indicator.menu.append(self.firmware_version)
-        self.indicator.menu.append(self.noise_cancelation)
         self.indicator.menu.append(self.auto_connection)
-        self.indicator.menu.append(self.lou_reed_mode)
-        self.indicator.menu.append(self.concert_hall_mode)
 
     @property
     def connected(self):
@@ -117,23 +108,62 @@ class ParrotZikVersion1Interface:
         self.battery_level.show()
         self.battery_state.show()
         self.firmware_version.show()
-        self.noise_cancelation.show()
         self.auto_connection.show()
-        self.lou_reed_mode.show()
-        self.concert_hall_mode.show()
 
         self.name = self.parrot.friendly_name
         self.version = self.parrot.version
-
-        if self.parrot.noise_cancel == "true":
-            self.noise_cancelation.set_active(True)
-        else:
-            self.noise_cancelation.set_active(False)
 
         if self.parrot.auto_connect == "true":
             self.auto_connection.set_active(True)
         else:
             self.auto_connection.set_active(False)
+
+        self.indicator.active_interface = self
+        self.indicator.menu.reposition()
+
+    def deactivate(self):
+        self.parrot = None
+        self.battery_level.hide()
+        self.battery_state.hide()
+        self.firmware_version.hide()
+        self.auto_connection.hide()
+        self.indicator.setIcon("zik-audio-headset")
+        self.indicator.info_item.set_label("Parrot Zik Not connected..")
+        self.indicator.menu.reposition()
+        self.indicator.active_interface = None
+
+    def toggleAuto(self, widget):
+        if self.connected:
+            if self.auto_connection.get_active():
+                self.parrot.auto_connection = "true"
+            else:
+                self.parrot.auto_connection = "false"
+
+
+class ParrotZikVersion1Interface(ParrotZikBaseInterface):
+    def __init__(self, indicator):
+        super(ParrotZikVersion1Interface, self).__init__(indicator)
+        self.noise_cancelation = MenuItem("Noise Cancellation", self.toggleANC,
+                                          checkitem=True, visible=False)
+        self.lou_reed_mode = MenuItem("Lou Reed Mode", self.toggleLouReedMode,
+                                      checkitem=True, visible=False)
+        self.concert_hall_mode = MenuItem(
+            "Concert Hall Mode", self.toggleParrotConcertHall,
+            checkitem=True, visible=False)
+        self.indicator.menu.append(self.noise_cancelation)
+        self.indicator.menu.append(self.lou_reed_mode)
+        self.indicator.menu.append(self.concert_hall_mode)
+
+    def activate(self, parrot):
+        self.noise_cancelation.show()
+        self.lou_reed_mode.show()
+        self.concert_hall_mode.show()
+        super(ParrotZikVersion1Interface, self).activate(parrot)
+
+        if self.parrot.noise_cancel == "true":
+            self.noise_cancelation.set_active(True)
+        else:
+            self.noise_cancelation.set_active(False)
 
         if self.parrot.lou_reed_mode == "true":
             self.lou_reed_mode.set_active(True)
@@ -145,22 +175,11 @@ class ParrotZikVersion1Interface:
         else:
             self.concert_hall_mode.set_active(False)
 
-        self.indicator.menu.reposition()
-        self.indicator.active_interface = self
-
     def deactivate(self):
-        self.parrot = None
-        self.battery_level.hide()
-        self.battery_state.hide()
-        self.firmware_version.hide()
         self.noise_cancelation.hide()
-        self.auto_connection.hide()
         self.lou_reed_mode.hide()
         self.concert_hall_mode.hide()
-        self.indicator.setIcon("zik-audio-headset")
-        self.indicator.info_item.set_label("Parrot Zik Not connected..")
-        self.indicator.menu.reposition()
-        self.indicator.active_interface = None
+        super(ParrotZikVersion1Interface, self).deactivate()
 
     def toggleANC(self, widget):
         if self.connected:
@@ -168,13 +187,6 @@ class ParrotZikVersion1Interface:
                 self.parrot.noise_cancel = "true"
             else:
                 self.parrot.noise_cancel = "false"
-
-    def toggleAuto(self, widget):
-        if self.connected:
-            if self.auto_connection.get_active():
-                self.parrot.auto_connection = "true"
-            else:
-                self.parrot.auto_connection = "false"
 
     def toggleLouReedMode(self, widget):
         if self.connected:
@@ -226,6 +238,7 @@ class ParrotZikVersion1Interface:
                 "Battery Level: " + str(self.batteryLevel))
         else:
             self.deactivate()
+
 
 if __name__ == "__main__":
     indicator = ParrotZikIndicator()
