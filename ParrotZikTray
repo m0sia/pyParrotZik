@@ -88,22 +88,22 @@ class ParrotZikVersion1Interface:
                                       visible=False)
         self.firmware_version = MenuItem("Firmware Version:", None,
                                          sensitive=False, visible=False)
-        self.check = MenuItem("Noise Cancellation", self.toggleANC,
-                              checkitem=True, visible=False)
-        self.check2 = MenuItem("Auto Connection", self.toggleAuto,
-                               checkitem=True, visible=False)
-        self.check3 = MenuItem("Lou Reed Mode", self.toggleLouReedMode,
-                               checkitem=True, visible=False)
-        self.check4 = MenuItem(
+        self.noise_cancelation = MenuItem("Noise Cancellation", self.toggleANC,
+                                          checkitem=True, visible=False)
+        self.auto_connection = MenuItem("Auto Connection", self.toggleAuto,
+                                        checkitem=True, visible=False)
+        self.lou_reed_mode = MenuItem("Lou Reed Mode", self.toggleLouReedMode,
+                                      checkitem=True, visible=False)
+        self.concert_hall_mode = MenuItem(
             "Concert Hall Mode", self.toggleParrotConcertHall,
             checkitem=True, visible=False)
         self.indicator.menu.append(self.battery_level)
         self.indicator.menu.append(self.battery_state)
         self.indicator.menu.append(self.firmware_version)
-        self.indicator.menu.append(self.check)
-        self.indicator.menu.append(self.check2)
-        self.indicator.menu.append(self.check3)
-        self.indicator.menu.append(self.check4)
+        self.indicator.menu.append(self.noise_cancelation)
+        self.indicator.menu.append(self.auto_connection)
+        self.indicator.menu.append(self.lou_reed_mode)
+        self.indicator.menu.append(self.concert_hall_mode)
 
     @property
     def connected(self):
@@ -117,33 +117,33 @@ class ParrotZikVersion1Interface:
         self.battery_level.show()
         self.battery_state.show()
         self.firmware_version.show()
-        self.check.show()
-        self.check2.show()
-        self.check3.show()
-        self.check4.show()
+        self.noise_cancelation.show()
+        self.auto_connection.show()
+        self.lou_reed_mode.show()
+        self.concert_hall_mode.show()
 
         self.name = self.parrot.friendly_name
         self.version = self.parrot.version
 
         if self.parrot.noise_cancel == "true":
-            self.check.set_active(True)
+            self.noise_cancelation.set_active(True)
         else:
-            self.check.set_active(False)
+            self.noise_cancelation.set_active(False)
 
         if self.parrot.auto_connect == "true":
-            self.check2.set_active(True)
+            self.auto_connection.set_active(True)
         else:
-            self.check2.set_active(False)
+            self.auto_connection.set_active(False)
 
         if self.parrot.lou_reed_mode == "true":
-            self.check3.set_active(True)
+            self.lou_reed_mode.set_active(True)
         else:
-            self.check3.set_active(False)
+            self.lou_reed_mode.set_active(False)
 
         if self.parrot.concert_hall == "true":
-            self.check4.set_active(True)
+            self.concert_hall_mode.set_active(True)
         else:
-            self.check4.set_active(False)
+            self.concert_hall_mode.set_active(False)
 
         self.indicator.menu.reposition()
         self.indicator.active_interface = self
@@ -153,10 +153,10 @@ class ParrotZikVersion1Interface:
         self.battery_level.hide()
         self.battery_state.hide()
         self.firmware_version.hide()
-        self.check.hide()
-        self.check2.hide()
-        self.check3.hide()
-        self.check4.hide()
+        self.noise_cancelation.hide()
+        self.auto_connection.hide()
+        self.lou_reed_mode.hide()
+        self.concert_hall_mode.hide()
         self.indicator.setIcon("zik-audio-headset")
         self.indicator.info_item.set_label("Parrot Zik Not connected..")
         self.indicator.menu.reposition()
@@ -164,30 +164,30 @@ class ParrotZikVersion1Interface:
 
     def toggleANC(self, widget):
         if self.connected:
-            if self.check.get_active():
+            if self.noise_cancelation.get_active():
                 self.parrot.noise_cancel = "true"
             else:
                 self.parrot.noise_cancel = "false"
 
     def toggleAuto(self, widget):
         if self.connected:
-            if self.check2.get_active():
+            if self.auto_connection.get_active():
                 self.parrot.auto_connection = "true"
             else:
                 self.parrot.auto_connection = "false"
 
     def toggleLouReedMode(self, widget):
         if self.connected:
-            if self.check3.get_active():
+            if self.lou_reed_mode.get_active():
                 self.parrot.lou_reed_mode = "true"
-                self.check4.set_sensitive(False)
+                self.concert_hall_mode.set_sensitive(False)
             else:
                 self.parrot.lou_reed_mode = "false"
-                self.check4.set_sensitive(True)
+                self.concert_hall_mode.set_sensitive(True)
 
     def toggleParrotConcertHall(self, widget):
         if self.connected:
-            if self.check4.get_active():
+            if self.concert_hall_mode.get_active():
                 self.parrot.concert_hall = "true"
             else:
                 self.parrot.concert_hall = "false"
