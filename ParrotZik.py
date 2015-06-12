@@ -91,12 +91,20 @@ class ParrotZikApi(object):
     def close(self):
         self.sock.close()
 
+class BatteryStates:
+    CHARGED = 'charged'
+    IN_USE = 'in_use'
+    CHARGING = 'charging'
+    representation = {
+        CHARGED: 'Charged',
+        IN_USE: 'In Use',
+        CHARGING: 'Charging',
+    }
 
 class ParrotZikBase(object):
+
     def __init__(self, api):
         self.api = api
-        self.BatteryLevel = 100
-        self.BatteryCharging = False
 
     @property
     def version(self):
@@ -109,22 +117,7 @@ class ParrotZikBase(object):
 
     def get_battery_level(self, field_name):
         data = self.api.get("/api/system/battery/get")
-        try:
-            if data.answer.system.battery[field_name] != '':
-                self.BatteryLevel = data.answer.system.battery[field_name]
-            if data.answer.system.battery["state"] == 'charging':
-                self.BatteryCharging = True
-            else:
-                self.BatteryCharging = False
-        except Exception:
-            pass
-
-        try:
-            print "notification received" + data.notify["path"]
-        except Exception:
-            pass
-
-        return self.BatteryLevel
+        return data.answer.system.battery[field_name]
 
     @property
     def friendly_name(self):
@@ -185,7 +178,7 @@ class ParrotZikBase(object):
 class ParrotZikVersion1(ParrotZikBase):
     @property
     def battery_level(self):
-        return self.get_battery_level('level')
+        return int(self.get_battery_level('level'))
 
     @property
     def lou_reed_mode(self):
