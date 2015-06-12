@@ -33,10 +33,6 @@ class repeat(object):
             self.id = None
 
 
-class Stop(Exception):
-    pass
-
-
 class ParrotZikIndicator(SysIndicator):
     def __init__(self):
  
