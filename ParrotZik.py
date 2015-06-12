@@ -94,7 +94,8 @@ class ParrotZik(object):
     @property
     def auto_connect(self):
         data = self.get("/api/system/auto_connection/enabled/get")
-        return data.answer.system.auto_connection["enabled"]
+        return self._result_to_bool(
+            data.answer.system.auto_connection["enabled"])
 
     @auto_connect.setter
     def auto_connect(self, arg):
@@ -103,12 +104,17 @@ class ParrotZik(object):
     @property
     def anc_phone_mode(self):
         data = self.get("/api/system/anc_phone_mode/enabled/get")
-        return data.answer.system.anc_phone_mode["enabled"]
+        return self._result_to_bool(
+            data.answer.system.anc_phone_mode["enabled"])
 
     @property
     def noise_cancel(self):
         data = self.get("/api/audio/noise_cancellation/enabled/get")
-        return data.answer.audio.noise_cancellation["enabled"]
+        try:
+            return self._result_to_bool(
+                data.answer.audio.noise_cancellation["enabled"])
+        except AttributeError:
+            return False
 
     @noise_cancel.setter
     def noise_cancel(self, arg):
@@ -118,9 +124,10 @@ class ParrotZik(object):
     def lou_reed_mode(self):
         data = self.get("/api/audio/specific_mode/enabled/get")
         try:
-            return data.answer.audio.specific_mode["enabled"]
+            return self._result_to_bool(
+                data.answer.audio.specific_mode["enabled"])
         except TypeError:
-            pass
+            return False
 
     @lou_reed_mode.setter
     def lou_reed_mode(self, arg):
@@ -129,18 +136,30 @@ class ParrotZik(object):
     @property
     def concert_hall(self):
         data = self.get("/api/audio/sound_effect/enabled/get")
-        return data.answer.audio.sound_effect["enabled"]
+        try:
+            return self._result_to_bool(
+                data.answer.audio.sound_effect["enabled"])
+        except AttributeError:
+            return False
 
     @concert_hall.setter
     def concert_hall(self, arg):
         self.set("/api/audio/sound_effect/enabled/set", arg)
+
+    def _result_to_bool(self, result):
+        if result == "true":
+            return True
+        elif result == "false":
+            return False
+        else:
+            raise AssertionError(result)
 
     def get(self, message):
         message = ParrotProtocol.getRequest(message)
         return self.send_message(message)
 
     def set(self, message, arg):
-        message = ParrotProtocol.setRequest(message, arg)
+        message = ParrotProtocol.setRequest(message, str(arg).lower())
         return self.send_message(message)
 
     def send_message(self, message):

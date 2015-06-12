@@ -117,10 +117,7 @@ class ParrotZikBaseInterface(object):
         self.name = self.parrot.friendly_name
         self.version = self.parrot.version
 
-        if self.parrot.auto_connect == "true":
-            self.auto_connection.set_active(True)
-        else:
-            self.auto_connection.set_active(False)
+        self.auto_connection.set_active(self.parrot.auto_connect)
 
         self.indicator.active_interface = self
         self.indicator.menu.reposition()
@@ -138,10 +135,8 @@ class ParrotZikBaseInterface(object):
 
     def toggleAuto(self, widget):
         if self.connected:
-            if self.auto_connection.get_active():
-                self.parrot.auto_connection = "true"
-            else:
-                self.parrot.auto_connection = "false"
+            self.parrot.auto_connection = self.auto_connection.get_active()
+            self.auto_connection.set_active(self.parrot.auto_connection)
 
 
 class ParrotZikVersion1Interface(ParrotZikBaseInterface):
@@ -164,20 +159,9 @@ class ParrotZikVersion1Interface(ParrotZikBaseInterface):
         self.concert_hall_mode.show()
         super(ParrotZikVersion1Interface, self).activate(parrot)
 
-        if self.parrot.noise_cancel == "true":
-            self.noise_cancelation.set_active(True)
-        else:
-            self.noise_cancelation.set_active(False)
-
-        if self.parrot.lou_reed_mode == "true":
-            self.lou_reed_mode.set_active(True)
-        else:
-            self.lou_reed_mode.set_active(False)
-
-        if self.parrot.concert_hall == "true":
-            self.concert_hall_mode.set_active(True)
-        else:
-            self.concert_hall_mode.set_active(False)
+        self.noise_cancelation.set_active(self.parrot.noise_cancel)
+        self.lou_reed_mode.set_active(self.parrot.lou_reed_mode)
+        self.concert_hall_mode.set_active(self.parrot.concert_hall)
 
     def deactivate(self):
         self.noise_cancelation.hide()
@@ -187,26 +171,21 @@ class ParrotZikVersion1Interface(ParrotZikBaseInterface):
 
     def toggleANC(self, widget):
         if self.connected:
-            if self.noise_cancelation.get_active():
-                self.parrot.noise_cancel = "true"
-            else:
-                self.parrot.noise_cancel = "false"
+            self.parrot.noise_cancel = self.noise_cancelation.get_active()
+            self.noise_cancelation.set_active(self.parrot.noise_cancel)
 
     def toggleLouReedMode(self, widget):
         if self.connected:
-            if self.lou_reed_mode.get_active():
-                self.parrot.lou_reed_mode = "true"
-                self.concert_hall_mode.set_sensitive(False)
-            else:
-                self.parrot.lou_reed_mode = "false"
-                self.concert_hall_mode.set_sensitive(True)
+            self.parrot.lou_reed_mode = self.lou_reed_mode.get_active()
+            self.lou_reed_mode.set_active(self.parrot.lou_reed_mode)
+            self.concert_hall_mode.set_active(self.parrot.concert_hall)
+            self.concert_hall_mode.set_sensitive(
+                not self.lou_reed_mode.get_active())
 
     def toggleParrotConcertHall(self, widget):
         if self.connected:
-            if self.concert_hall_mode.get_active():
-                self.parrot.concert_hall = "true"
-            else:
-                self.parrot.concert_hall = "false"
+            self.parrot.concert_hall = self.concert_hall_mode.get_active()
+            self.concert_hall_mode.set_active(self.parrot.concert_hall)
 
     def refresh(self):
         if self.connected:
