@@ -73,30 +73,30 @@ class ParrotZikIndicator(SysIndicator):
                     return False
 
                 self.connected = True
-                self.name = self.parrot.getFriendlyName()
-                self.version = self.parrot.getVersion()
+                self.name = self.parrot.friendly_name
+                self.version = self.parrot.version
 
                 self.check.set_sensitive(True)
                 self.check2.set_sensitive(True)
                 self.check3.set_sensitive(True)
                 self.check4.set_sensitive(True)
 
-                if self.parrot.getNoiseCancel() == "true":
+                if self.parrot.noise_cancel == "true":
                     self.check.set_active(True)
                 else:
                     self.check.set_active(False)
 
-                if self.parrot.getAutoConnection() == "true":
+                if self.parrot.auto_connect == "true":
                     self.check2.set_active(True)
                 else:
                     self.check2.set_active(False)
 
-                if self.parrot.getLouReedMode() == "true":
+                if self.parrot.lou_reed_mode == "true":
                     self.check3.set_active(True)
                 else:
                     self.check3.set_active(False)
 
-                if self.parrot.getParrotConcertHall() == "true":
+                if self.parrot.concert_hall == "true":
                     self.check4.set_active(True)
                 else:
                     self.check4.set_active(False)
@@ -114,30 +114,30 @@ class ParrotZikIndicator(SysIndicator):
     def toggleAuto(self, widget):
         if self.connected:
             if self.check2.get_active():
-                self.parrot.setAutoConnection("true")
+                self.parrot.auto_connection = "true"
             else:
-                self.parrot.setAutoConnection("false")
+                self.parrot.auto_connection = "false"
 
     def toggleLouReedMode(self, widget):
         if self.connected:
             if self.check3.get_active():
-                self.parrot.setLouReedMode("true")
+                self.parrot.lou_reed_mode = "true"
                 self.check4.set_sensitive(False)
             else:
-                self.parrot.setLouReedMode("false")      
+                self.parrot.lou_reed_mode = "false"
                 self.check4.set_sensitive(True)
             
     def toggleParrotConcertHall(self, widget):
         if self.connected:
             if self.check4.get_active():
-                self.parrot.setParrotConcertHall("true")
+                self.parrot.concert_hall = "true"
             else:
-                self.parrot.setParrotConcertHall("false")
+                self.parrot.concert_hall = "false"
 
     def CheckBattery(self):
         if self.connected:
             print "Updating battery"
-            self.batteryLevel = int(self.parrot.getBatteryLevel())
+            self.batteryLevel = int(self.parrot.battery_level)
             
             if self.parrot.BatteryCharging:
                 self.batteryLevel = "Charging"

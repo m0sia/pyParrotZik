@@ -49,12 +49,14 @@ class ParrotZik(object):
         self.BatteryCharging = False
         print "Connected"
 
-    def getBatteryState(self):
-        data = self.sendGetMessage("/api/system/battery/get")
+    @property
+    def battery_state(self):
+        data = self.get("/api/system/battery/get")
         return data.answer.system.battery["state"]
 
-    def getBatteryLevel(self):
-        data = self.sendGetMessage("/api/system/battery/get")    
+    @property
+    def battery_level(self):
+        data = self.get("/api/system/battery/get")
         try:
             if data.answer.system.battery["level"] != '':
                 self.BatteryLevel = data.answer.system.battery["level"]
@@ -72,61 +74,66 @@ class ParrotZik(object):
 
         return self.BatteryLevel
 
-    def getVersion(self):
-        data = self.sendGetMessage("/api/software/version/get")
+    @property
+    def version(self):
+        data = self.get("/api/software/version/get")
         return data.answer.software["version"]    
 
-    def getFriendlyName(self):
-        data = self.sendGetMessage("/api/bluetooth/friendlyname/get")
+    @property
+    def friendly_name(self):
+        data = self.get("/api/bluetooth/friendlyname/get")
         return data.answer.bluetooth["friendlyname"]
 
-    def getAutoConnection(self):
-        data = self.sendGetMessage("/api/system/auto_connection/enabled/get")
+    @property
+    def auto_connect(self):
+        data = self.get("/api/system/auto_connection/enabled/get")
         return data.answer.system.auto_connection["enabled"]
 
-    def setAutoConnection(self, arg):
-        data = self.sendSetMessage("/api/system/auto_connection/enabled/set",
-                                   arg)
-        return data
+    @auto_connect.setter
+    def auto_connect(self, arg):
+        self.set("/api/system/auto_connection/enabled/set", arg)
 
-    def getAncPhoneMode(self):
-        data = self.sendGetMessage("/api/system/anc_phone_mode/enabled/get")
+    @property
+    def anc_phone_mode(self):
+        data = self.get("/api/system/anc_phone_mode/enabled/get")
         return data.answer.system.anc_phone_mode["enabled"]
 
-    def getNoiseCancel(self):
-        data = self.sendGetMessage("/api/audio/noise_cancellation/enabled/get")
+    @property
+    def noise_cancel(self):
+        data = self.get("/api/audio/noise_cancellation/enabled/get")
         return data.answer.audio.noise_cancellation["enabled"]
 
-    def setNoiseCancel(self, arg):
-        data = self.sendSetMessage("/api/audio/noise_cancellation/enabled/set",
-                                   arg)
-        return data
+    @noise_cancel.setter
+    def noise_cancel(self, arg):
+        self.set("/api/audio/noise_cancellation/enabled/set", arg)
 
-    def getLouReedMode(self):
-        data = self.sendGetMessage("/api/audio/specific_mode/enabled/get")
+    @property
+    def lou_reed_mode(self):
+        data = self.get("/api/audio/specific_mode/enabled/get")
         return data.answer.audio.specific_mode["enabled"]
 
-    def setLouReedMode(self, arg):
-        data = self.sendSetMessage("/api/audio/specific_mode/enabled/set", arg)
-        return data
+    @lou_reed_mode.setter
+    def lou_reed_mode(self, arg):
+        self.set("/api/audio/specific_mode/enabled/set", arg)
 
-    def getParrotConcertHall(self):
-        data = self.sendGetMessage("/api/audio/sound_effect/enabled/get")
+    @property
+    def concert_hall(self):
+        data = self.get("/api/audio/sound_effect/enabled/get")
         return data.answer.audio.sound_effect["enabled"]
 
-    def setParrotConcertHall(self, arg):
-        data = self.sendSetMessage("/api/audio/sound_effect/enabled/set", arg)
-        return data
+    @concert_hall.setter
+    def concert_hall(self, arg):
+        self.set("/api/audio/sound_effect/enabled/set", arg)
 
-    def sendGetMessage(self, message):
+    def get(self, message):
         message = ParrotProtocol.getRequest(message)
-        return self.sendMessage(message)
+        return self.send_message(message)
 
-    def sendSetMessage(self, message, arg):
+    def set(self, message, arg):
         message = ParrotProtocol.setRequest(message, arg)
-        return self.sendMessage(message)
+        return self.send_message(message)
 
-    def sendMessage(self, message):
+    def send_message(self, message):
         try:
             self.sock.send(str(message))
         except Exception:
@@ -140,5 +147,5 @@ class ParrotZik(object):
         data = BeautifulSoup(data)
         return data
 
-    def Close(self):
+    def close(self):
         self.sock.close()
