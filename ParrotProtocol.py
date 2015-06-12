@@ -12,9 +12,9 @@ def generateHeader(requestString):
     return header
 
 
-def getRequest(apiString):
-    return generateRequest("GET " + apiString)
+def getRequest(resource):
+    return generateRequest("GET " + resource + '/get')
 
 
-def setRequest(apiString,args):
-    return generateRequest("SET " + apiString + "?arg=" + args)
+def setRequest(resource, args):
+    return generateRequest("SET " + resource + '/set' + "?arg=" + args)
