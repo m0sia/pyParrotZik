@@ -62,12 +62,12 @@ class ParrotZik(object):
                 self.BatteryCharging = True
             else:
                 self.BatteryCharging = False
-        except:
+        except Exception:
             pass
 
         try:
             print "notification received" + data.notify["path"]
-        except:
+        except Exception:
             pass
 
         return self.BatteryLevel
@@ -129,7 +129,7 @@ class ParrotZik(object):
     def sendMessage(self, message):
         try:
             self.sock.send(str(message))
-        except:
+        except Exception:
             self.sock = ""
             return
         if sys.platform == "darwin":

@@ -24,7 +24,7 @@ def ParrotZikMac():
                 for mac in parsed_plist['PairedDevices']:
                     if p.match(mac.replace("-", ":")):
                         return mac.replace("-", ":")
-            except:
+            except Exception:
                 pass
 
         elif sys.platform == "win32":
