@@ -177,6 +177,9 @@ class MenuItemBase(object):
     def hide(self):
         self.base_item.hide()
 
+    def set_submenu(self, menu):
+        raise NotImplementedError
+
 class GTKMenuItem(MenuItemBase):
     def __init__(self, name, action, sensitive=True, checkitem=False, visible=True):
         if checkitem:
@@ -198,6 +201,9 @@ class GTKMenuItem(MenuItemBase):
 
     def set_label(self, option):
         return self.base_item.set_label(option)
+
+    def set_submenu(self, menu):
+        self.base_item.set_submenu(menu.gtk_menu)
 
 
 class NSMenuItem(MenuItemBase):

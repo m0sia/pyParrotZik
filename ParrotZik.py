@@ -7,76 +7,56 @@ else:
 import ParrotProtocol
 from BeautifulSoup import BeautifulSoup
 
-class ParrotZik(object):
-    def __init__(self, addr=None):
-        uuids = ["0ef0f502-f0ee-46c9-986c-54ed027807fb",
-                 "8B6814D3-6CE7-4498-9700-9312C1711F63"]
+def connect(addr=None):
+    uuids = ["0ef0f502-f0ee-46c9-986c-54ed027807fb",
+             "8B6814D3-6CE7-4498-9700-9312C1711F63"]
 
-        if sys.platform == "darwin":
-            service_matches = lightblue.findservices(
-                name="Parrot RFcomm service", addr=addr)
-        else:
-            for uuid in uuids:
-                service_matches = bluetooth.find_service(uuid=uuid,
-                                                         address=addr)
-                if service_matches:
-                    break
+    if sys.platform == "darwin":
+        service_matches = lightblue.findservices(
+            name="Parrot RFcomm service", addr=addr)
+    else:
+        for uuid in uuids:
+            service_matches = bluetooth.find_service(uuid=uuid,
+                                                     address=addr)
+            if service_matches:
+                break
 
-        if len(service_matches) == 0:
-            print "Failed to find Parrot Zik RFCOMM service"
-            self.sock = ""
-            return
+    if len(service_matches) == 0:
+        print "Failed to find Parrot Zik RFCOMM service"
+        return ParrotZikBase(ParrotZikApi(None))
 
-        if sys.platform == "darwin":
-            first_match = service_matches[0]
-            port = first_match[1]
-            name = first_match[2]
-            host = first_match[0]
-        else:
-            first_match = service_matches[0]
-            port = first_match["port"]
-            name = first_match["name"]
-            host = first_match["host"]
+    if sys.platform == "darwin":
+        first_match = service_matches[0]
+        port = first_match[1]
+        name = first_match[2]
+        host = first_match[0]
+    else:
+        first_match = service_matches[0]
+        port = first_match["port"]
+        name = first_match["name"]
+        host = first_match["host"]
 
-        print "Connecting to \"%s\" on %s" % (name, host)
+    print "Connecting to \"%s\" on %s" % (name, host)
 
-        if sys.platform == "darwin":
-            self.sock = lightblue.socket()
-        else:
-            self.sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+    if sys.platform == "darwin":
+        sock = lightblue.socket()
+    else:
+        sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 
-        self.sock.connect((host, port))
+    sock.connect((host, port))
 
-        self.sock.send('\x00\x03\x00')
-        data = self.sock.recv(1024)
+    sock.send('\x00\x03\x00')
+    data = sock.recv(1024)
+    api = ParrotZikApi(sock)
+    if api.version.startswith('1'):
+        return ParrotZikVersion1(api)
+    else:
+        return ParrotZikVersion2(api)
 
-        self.BatteryLevel = 100
-        self.BatteryCharging = False
 
-    @property
-    def battery_state(self):
-        data = self.get("/api/system/battery/get")
-        return data.answer.system.battery["state"]
-
-    @property
-    def battery_level(self):
-        data = self.get("/api/system/battery/get")
-        try:
-            if data.answer.system.battery["level"] != '':
-                self.BatteryLevel = data.answer.system.battery["level"]
-            if data.answer.system.battery["state"] == 'charging':
-                self.BatteryCharging = True
-            else:
-                self.BatteryCharging = False
-        except Exception:
-            pass
-
-        try:
-            print "notification received" + data.notify["path"]
-        except Exception:
-            pass
-
-        return self.BatteryLevel
+class ParrotZikApi(object):
+    def __init__(self, socket):
+        self.sock = socket
 
     @property
     def version(self):
@@ -85,74 +65,6 @@ class ParrotZik(object):
             return data.answer.software["version"]
         except KeyError:
             return data.answer.software['sip6']
-
-    @property
-    def friendly_name(self):
-        data = self.get("/api/bluetooth/friendlyname/get")
-        return data.answer.bluetooth["friendlyname"]
-
-    @property
-    def auto_connect(self):
-        data = self.get("/api/system/auto_connection/enabled/get")
-        return self._result_to_bool(
-            data.answer.system.auto_connection["enabled"])
-
-    @auto_connect.setter
-    def auto_connect(self, arg):
-        self.set("/api/system/auto_connection/enabled/set", arg)
-
-    @property
-    def anc_phone_mode(self):
-        data = self.get("/api/system/anc_phone_mode/enabled/get")
-        return self._result_to_bool(
-            data.answer.system.anc_phone_mode["enabled"])
-
-    @property
-    def noise_cancel(self):
-        data = self.get("/api/audio/noise_cancellation/enabled/get")
-        try:
-            return self._result_to_bool(
-                data.answer.audio.noise_cancellation["enabled"])
-        except AttributeError:
-            return False
-
-    @noise_cancel.setter
-    def noise_cancel(self, arg):
-        self.set("/api/audio/noise_cancellation/enabled/set", arg)
-
-    @property
-    def lou_reed_mode(self):
-        data = self.get("/api/audio/specific_mode/enabled/get")
-        try:
-            return self._result_to_bool(
-                data.answer.audio.specific_mode["enabled"])
-        except TypeError:
-            return False
-
-    @lou_reed_mode.setter
-    def lou_reed_mode(self, arg):
-        self.set("/api/audio/specific_mode/enabled/set", arg)
-
-    @property
-    def concert_hall(self):
-        data = self.get("/api/audio/sound_effect/enabled/get")
-        try:
-            return self._result_to_bool(
-                data.answer.audio.sound_effect["enabled"])
-        except AttributeError:
-            return False
-
-    @concert_hall.setter
-    def concert_hall(self, arg):
-        self.set("/api/audio/sound_effect/enabled/set", arg)
-
-    def _result_to_bool(self, result):
-        if result == "true":
-            return True
-        elif result == "false":
-            return False
-        else:
-            raise AssertionError(result)
 
     def get(self, message):
         message = ParrotProtocol.getRequest(message)
@@ -178,3 +90,115 @@ class ParrotZik(object):
 
     def close(self):
         self.sock.close()
+
+
+class ParrotZikBase(object):
+    def __init__(self, api):
+        self.api = api
+        self.BatteryLevel = 100
+        self.BatteryCharging = False
+
+    @property
+    def version(self):
+        return self.api.version
+
+    @property
+    def battery_state(self):
+        data = self.api.get("/api/system/battery/get")
+        return data.answer.system.battery["state"]
+
+    def get_battery_level(self, field_name):
+        data = self.api.get("/api/system/battery/get")
+        try:
+            if data.answer.system.battery[field_name] != '':
+                self.BatteryLevel = data.answer.system.battery[field_name]
+            if data.answer.system.battery["state"] == 'charging':
+                self.BatteryCharging = True
+            else:
+                self.BatteryCharging = False
+        except Exception:
+            pass
+
+        try:
+            print "notification received" + data.notify["path"]
+        except Exception:
+            pass
+
+        return self.BatteryLevel
+
+    @property
+    def friendly_name(self):
+        data = self.api.get("/api/bluetooth/friendlyname/get")
+        return data.answer.bluetooth["friendlyname"]
+
+    @property
+    def auto_connect(self):
+        data = self.api.get("/api/system/auto_connection/enabled/get")
+        return self._result_to_bool(
+            data.answer.system.auto_connection["enabled"])
+
+    @auto_connect.setter
+    def auto_connect(self, arg):
+        self.api.get("/api/system/auto_connection/enabled/set", arg)
+
+    @property
+    def anc_phone_mode(self):
+        data = self.api.get("/api/system/anc_phone_mode/enabled/get")
+        return self._result_to_bool(
+            data.answer.system.anc_phone_mode["enabled"])
+
+    @property
+    def noise_cancel(self):
+        data = self.api.get("/api/audio/noise_cancellation/enabled/get")
+        try:
+            return self._result_to_bool(
+                data.answer.audio.noise_cancellation["enabled"])
+        except AttributeError:
+            return False
+
+    @noise_cancel.setter
+    def noise_cancel(self, arg):
+        self.api.get("/api/audio/noise_cancellation/enabled/set", arg)
+
+    @property
+    def concert_hall(self):
+        data = self.api.get("/api/audio/sound_effect/enabled/get")
+        try:
+            return self._result_to_bool(
+                data.answer.audio.sound_effect["enabled"])
+        except AttributeError:
+            return False
+
+    @concert_hall.setter
+    def concert_hall(self, arg):
+        self.api.get("/api/audio/sound_effect/enabled/set", arg)
+
+    def _result_to_bool(self, result):
+        if result == "true":
+            return True
+        elif result == "false":
+            return False
+        else:
+            raise AssertionError(result)
+
+
+class ParrotZikVersion1(ParrotZikBase):
+    @property
+    def battery_level(self):
+        return self.get_battery_level('level')
+
+    @property
+    def lou_reed_mode(self):
+        data = self.api.get("/api/audio/specific_mode/enabled/get")
+        return self._result_to_bool(
+            data.answer.audio.specific_mode["enabled"])
+
+    @lou_reed_mode.setter
+    def lou_reed_mode(self, arg):
+        self.api.get("/api/audio/specific_mode/enabled/set", arg)
+
+
+class ParrotZikVersion2(ParrotZikBase):
+    @property
+    def battery_level(self):
+        return self.get_battery_level('percent')
