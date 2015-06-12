@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 def generateRequest(requestString):
     message=bytearray()
     message.extend(generateHeader(requestString))

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import sys
 if sys.platform == "darwin":
     import lightblue
