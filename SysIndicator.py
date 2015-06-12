@@ -109,14 +109,17 @@ class UniversalMenu:
             self.actions[MenuItem.title] = MenuItem.action
             self.menubarMenu.addItem_(MenuItem.nsmenu_item)
 
+    def reposition(self):
+        if sys.platform == "linux2" or sys.platform == "win32":
+            self.gtk_menu.reposition()
+
 class MenuItem:
-    def __init__(self, name, action, sensitive=True, checkitem=False):
+    def __init__(self, name, action, sensitive=True, checkitem=False, visible=True):
         if sys.platform == "linux2" or sys.platform == "win32":
             if checkitem:
                 self.gtk_item = gtk.CheckMenuItem(name)
             else:
                 self.gtk_item = gtk.MenuItem(name)
-            self.gtk_item.show()
             if action:
                 self.gtk_item.connect("activate", action)
 
@@ -126,8 +129,11 @@ class MenuItem:
             self.nsmenu_item = (
                 NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
                     name, 'clicked:', ''))
-
         self.set_sensitive(sensitive)
+        if visible:
+            self.show()
+        else:
+            self.hide()
 
     def set_sensitive(self, option):
         if sys.platform == "linux2" or sys.platform == "win32":
@@ -155,6 +161,18 @@ class MenuItem:
             self.title = option
             self.nsmenu_item.setTitle_(option)
             #self.rumps_item.title=option
+
+    def show(self):
+        if sys.platform == "linux2" or sys.platform == "win32":
+            self.gtk_item.show()
+        elif sys.platform == "darwin":
+            self.nsmenu_item.show()
+
+    def hide(self):
+        if sys.platform == "linux2" or sys.platform == "win32":
+            self.gtk_item.hide()
+        elif sys.platform == "darwin":
+            self.nsmenu_item.hide()
 
 if __name__ == "__main__":
 
