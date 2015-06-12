@@ -2,6 +2,11 @@ import sys
 import re
 import os
 
+if sys.platform == "darwin":
+    from binplist import binplist
+elif sys.platform == "win32":
+    import _winreg
+
 
 def ParrotZikMac():
         p = re.compile('90:03:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}')
@@ -35,8 +40,3 @@ def ParrotZikMac():
 
                 except EnvironmentError:
                     pass
-
-if sys.platform == "darwin":
-    from binplist import binplist
-elif sys.platform == "win32":
-    import _winreg
