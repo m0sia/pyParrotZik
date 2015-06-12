@@ -203,7 +203,7 @@ class ParrotZikVersion2(ParrotZikBase):
 
     @flight_mode.setter
     def flight_mode(self, arg):
-        self.api.set('/api/flight_mode/enable', arg)
+        self.api.set('/api/flight_mode/set', arg)
 
     @property
     def room_size(self):
