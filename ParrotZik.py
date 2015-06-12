@@ -52,7 +52,6 @@ class ParrotZik(object):
 
         self.BatteryLevel = 100
         self.BatteryCharging = False
-        print "Connected"
 
     @property
     def battery_state(self):

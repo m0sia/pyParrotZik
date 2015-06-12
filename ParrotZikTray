@@ -7,7 +7,7 @@ from SysIndicator import MenuItem
 from SysIndicator import Menu
 from SysIndicator import SysIndicator
 
-REFRESH_FREQUENCY = 1000
+REFRESH_FREQUENCY = 30000
 RECONNECT_FREQUENCY = 5000
 
 
@@ -15,6 +15,9 @@ class repeat(object):
     def __init__(self, f):
         self.f = f
         self.id = None
+
+    def __call__(self, cls):
+        self.f(cls)
 
     def start(self, cls, frequency):
         if not self.id:
@@ -65,6 +68,7 @@ class ParrotZikIndicator(SysIndicator):
                 parrot = ParrotZik.ParrotZik(mac)
                 if parrot.sock:
                     self.version_1_interface.activate(parrot)
+                    self.autorefresh(self)
                     self.autorefresh.start(self, REFRESH_FREQUENCY)
                     self.reconnect.stop()
                     print "Connected"
