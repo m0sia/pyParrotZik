@@ -5,44 +5,57 @@ import ParrotZik
 import BluetoothPairedDevices
 from SysIndicator import *
 
-UPDATE_FREQUENCY = 30 # seconds
+# seconds
+UPDATE_FREQUENCY = 30
+
 
 class ParrotZikIndicator(SysIndicator):
     def __init__(self):
  
         self.menu = UniversalMenu()
 
-        self.info_item = MenuItem("Parrot Zik Not connected..",None,sensitive = False)  
+        self.info_item = MenuItem("Parrot Zik Not connected..",
+                                  None, sensitive=False)
         self.menu.append(self.info_item)
 
-        self.battery_level = MenuItem("Battery Level:",None,sensitive = False)
+        self.battery_level = MenuItem("Battery Level:",
+                                      None, sensitive=False)
         self.menu.append(self.battery_level)
 
-        self.battery_state = MenuItem("Battery State:",None,sensitive = False) 
+        self.battery_state = MenuItem("Battery State:",
+                                      None, sensitive=False)
         self.menu.append(self.battery_state)
 
-        self.firmware_version = MenuItem("Firmware Version:",None,sensitive = False)  
+        self.firmware_version = MenuItem("Firmware Version:",
+                                         None, sensitive=False)
         self.menu.append(self.firmware_version)
 
-        self.check = MenuItem("Noise Cancellation",self.toggleANC,sensitive = False, checkitem = True)
+        self.check = MenuItem("Noise Cancellation", self.toggleANC,
+                              sensitive=False, checkitem=True)
         self.menu.append(self.check)
 
-        self.check2 = MenuItem("Auto Connection",self.toggleAuto,sensitive = False, checkitem = True)        
+        self.check2 = MenuItem("Auto Connection", self.toggleAuto,
+                               sensitive=False, checkitem=True)
         self.menu.append(self.check2)
 
-        self.check3 = MenuItem("Lou Reed Mode",self.toggleLouReedMode,sensitive = False, checkitem = True)
+        self.check3 = MenuItem("Lou Reed Mode", self.toggleLouReedMode,
+                               sensitive=False, checkitem=True)
         self.menu.append(self.check3)
 
-        self.check4 = MenuItem("Concert Hall Mode",self.toggleParrotConcertHall,sensitive = False, checkitem = True)
+        self.check4 = MenuItem(
+            "Concert Hall Mode", self.toggleParrotConcertHall,
+            sensitive=False, checkitem=True)
         self.menu.append(self.check4)
 
-        self.quit = MenuItem("Quit",sys.exit,sensitive = True, checkitem = True)
+        self.quit = MenuItem("Quit", sys.exit, sensitive=True, checkitem=True)
         self.menu.append(self.quit)
 
-        SysIndicator.__init__(self,icon = "zik-audio-headset",menu = self.menu)
+        SysIndicator.__init__(self, icon="zik-audio-headset", menu=self.menu)
 
-        self.connected=False
-        self.p = re.compile('90:03:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}')
+        self.connected = False
+        self.p = re.compile(
+            '90:03:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}'
+        )
 
     def EstablishConnection(self):
         if self.connected:
@@ -52,7 +65,7 @@ class ParrotZikIndicator(SysIndicator):
             else:
                 print "Connection already established"
         else:
-            mac=BluetoothPairedDevices.ParrotZikMac()
+            mac = BluetoothPairedDevices.ParrotZikMac()
             if mac:
                 self.parrot = ParrotZik.ParrotZik(mac)
                 if not self.parrot.sock:
@@ -91,21 +104,21 @@ class ParrotZikIndicator(SysIndicator):
                 self.CheckBattery()
         return True
 
-    def toggleANC(self,widget):
+    def toggleANC(self, widget):
         if self.connected:
             if self.check.get_active():
                 self.parrot.setNoiseCancel("true")
             else:
                 self.parrot.setNoiseCancel("false")
 
-    def toggleAuto(self,widget):
+    def toggleAuto(self, widget):
         if self.connected:
             if self.check2.get_active():
                 self.parrot.setAutoConnection("true")
             else:
                 self.parrot.setAutoConnection("false")
 
-    def toggleLouReedMode(self,widget):
+    def toggleLouReedMode(self, widget):
         if self.connected:
             if self.check3.get_active():
                 self.parrot.setLouReedMode("true")
@@ -114,7 +127,7 @@ class ParrotZikIndicator(SysIndicator):
                 self.parrot.setLouReedMode("false")      
                 self.check4.set_sensitive(True)
             
-    def toggleParrotConcertHall(self,widget):
+    def toggleParrotConcertHall(self, widget):
         if self.connected:
             if self.check4.get_active():
                 self.parrot.setParrotConcertHall("true")
@@ -129,28 +142,30 @@ class ParrotZikIndicator(SysIndicator):
             if self.parrot.BatteryCharging:
                 self.batteryLevel = "Charging"
                 self.setIcon("zik-battery-charging")
-                self.batteryLevel="Unknown"
-                self.batteryState="Charging"
-            elif self.batteryLevel>80:
+                self.batteryLevel = "Unknown"
+                self.batteryState = "Charging"
+            elif self.batteryLevel > 80:
                 self.setIcon("zik-battery-100")
-                self.batteryState="In Use"
-            elif self.batteryLevel>60:
+                self.batteryState = "In Use"
+            elif self.batteryLevel > 60:
                 self.setIcon("zik-battery-080")
-                self.batteryState="In Use"
-            elif self.batteryLevel>40:                
+                self.batteryState = "In Use"
+            elif self.batteryLevel > 40:
                 self.setIcon("zik-battery-060")
-                self.batteryState="In Use"
-            elif self.batteryLevel>20:
+                self.batteryState = "In Use"
+            elif self.batteryLevel > 20:
                 self.setIcon("zik-battery-040")
-                self.batteryState="In Use"
+                self.batteryState = "In Use"
             else:
                 self.setIcon("zik-battery-low")
-                self.batteryState="In Use"
+                self.batteryState = "In Use"
 
-            self.info_item.set_label("Connected to: "+self.name)
-            self.firmware_version.set_label("Firmware version: "+self.version)
-            self.battery_state.set_label("State: "+self.batteryState)
-            self.battery_level.set_label("Battery Level: "+str(self.batteryLevel))
+            self.info_item.set_label("Connected to: " + self.name)
+            self.firmware_version.set_label(
+                "Firmware version: " + self.version)
+            self.battery_state.set_label("State: " + self.batteryState)
+            self.battery_level.set_label(
+                "Battery Level: " + str(self.batteryLevel))
         else:
             self.setIcon("zik-audio-headset")
             self.info_item.set_label("Parrot Zik Not connected..")

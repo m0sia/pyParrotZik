@@ -8,19 +8,18 @@ import ParrotProtocol
 from BeautifulSoup import BeautifulSoup
 
 class ParrotZik(object):
-    def __init__(self,addr=None):
+    def __init__(self, addr=None):
         uuid = "0ef0f502-f0ee-46c9-986c-54ed027807fb"
 
-
         if sys.platform == "darwin":
-            service_matches = lightblue.findservices( name = "Parrot RFcomm service", addr = addr )
+            service_matches = lightblue.findservices(
+                name="Parrot RFcomm service", addr=addr)
         else:
-            service_matches = bluetooth.find_service( uuid = uuid, address = addr )        
-
+            service_matches = bluetooth.find_service(uuid=uuid, address=addr)
 
         if len(service_matches) == 0:
             print "Failed to find Parrot Zik RFCOMM service"
-            self.sock =""
+            self.sock = ""
             return
 
         if sys.platform == "darwin":
@@ -37,9 +36,9 @@ class ParrotZik(object):
         print "Connecting to \"%s\" on %s" % (name, host)
 
         if sys.platform == "darwin":
-            self.sock=lightblue.socket()
+            self.sock = lightblue.socket()
         else:
-            self.sock=bluetooth.BluetoothSocket( bluetooth.RFCOMM )
+            self.sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 
         self.sock.connect((host, port))
 
@@ -57,7 +56,7 @@ class ParrotZik(object):
     def getBatteryLevel(self):
         data = self.sendGetMessage("/api/system/battery/get")    
         try:
-            if data.answer.system.battery["level"] <> '':
+            if data.answer.system.battery["level"] != '':
                 self.BatteryLevel = data.answer.system.battery["level"]
             if data.answer.system.battery["state"] == 'charging':
                 self.BatteryCharging = True
@@ -85,8 +84,9 @@ class ParrotZik(object):
         data = self.sendGetMessage("/api/system/auto_connection/enabled/get")
         return data.answer.system.auto_connection["enabled"]
 
-    def setAutoConnection(self,arg):
-        data = self.sendSetMessage("/api/system/auto_connection/enabled/set",arg)
+    def setAutoConnection(self, arg):
+        data = self.sendSetMessage("/api/system/auto_connection/enabled/set",
+                                   arg)
         return data
 
     def getAncPhoneMode(self):
@@ -97,46 +97,47 @@ class ParrotZik(object):
         data = self.sendGetMessage("/api/audio/noise_cancellation/enabled/get")
         return data.answer.audio.noise_cancellation["enabled"]
 
-    def setNoiseCancel(self,arg):
-        data = self.sendSetMessage("/api/audio/noise_cancellation/enabled/set",arg)
+    def setNoiseCancel(self, arg):
+        data = self.sendSetMessage("/api/audio/noise_cancellation/enabled/set",
+                                   arg)
         return data
 
     def getLouReedMode(self):
         data = self.sendGetMessage("/api/audio/specific_mode/enabled/get")
         return data.answer.audio.specific_mode["enabled"]
 
-    def setLouReedMode(self,arg):
-        data = self.sendSetMessage("/api/audio/specific_mode/enabled/set",arg)
+    def setLouReedMode(self, arg):
+        data = self.sendSetMessage("/api/audio/specific_mode/enabled/set", arg)
         return data
 
     def getParrotConcertHall(self):
         data = self.sendGetMessage("/api/audio/sound_effect/enabled/get")
         return data.answer.audio.sound_effect["enabled"]
 
-    def setParrotConcertHall(self,arg):
-        data = self.sendSetMessage("/api/audio/sound_effect/enabled/set",arg)
+    def setParrotConcertHall(self, arg):
+        data = self.sendSetMessage("/api/audio/sound_effect/enabled/set", arg)
         return data
 
-    def sendGetMessage(self,message):
+    def sendGetMessage(self, message):
         message = ParrotProtocol.getRequest(message)
         return self.sendMessage(message)
 
-    def sendSetMessage(self,message,arg):
-        message = ParrotProtocol.setRequest(message,arg)
+    def sendSetMessage(self, message, arg):
+        message = ParrotProtocol.setRequest(message, arg)
         return self.sendMessage(message)
 
-    def sendMessage(self,message):
+    def sendMessage(self, message):
         try:
             self.sock.send(str(message))
         except:
-            self.sock =""
+            self.sock = ""
             return
         if sys.platform == "darwin":
             data = self.sock.recv(30)
         else:
             data = self.sock.recv(7)
         data = self.sock.recv(1024)
-        data=BeautifulSoup(data)
+        data = BeautifulSoup(data)
         return data
 
     def Close(self):
