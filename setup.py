@@ -1,10 +1,10 @@
-from setuptools import setup
 import glob
 import sys
 
 if sys.platform=="win32":
-  import py2exe
-  from distutils.core import setup
+    from distutils.core import setup
+else:
+    from setuptools import setup
 
 
 setup(
