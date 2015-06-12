@@ -268,7 +268,7 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.concert_hall_mode_submenu.append(self.silent_mode)
         self.indicator.menu.append(self.concert_hall_mode)
 
-        self.flight_mode = MenuItem("Flight Mode", None,
+        self.flight_mode = MenuItem("Flight Mode", self.toggle_flight_mode,
                                     sensitive=True, checkitem=True, visible=False)
         self.indicator.menu.append(self.flight_mode)
 
@@ -278,12 +278,17 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.flight_mode.show()
         super(ParrotZikVersion2Interface, self).activate(parrot)
         self.noise_cancelation_enabled.set_active(self.parrot.noise_cancel)
-        # self.flight_mode.set_active(self.parrot.flight_mode)
+        self.flight_mode.set_active(self.parrot.flight_mode)
 
     def toggleANC(self, widget):
         if self.connected:
             self.parrot.noise_cancel = self.noise_cancelation.get_active()
             self.noise_cancelation.set_active(self.parrot.noise_cancel)
+
+    def toggle_flight_mode(self, widget):
+        if self.connected:
+            self.parrot.flight_mode = self.flight_mode.get_active()
+            self.flight_mode.set_active(self.parrot.flight_mode)
 
     def toggledummy(self, widget):
         print(widget.get_name())

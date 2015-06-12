@@ -195,3 +195,12 @@ class ParrotZikVersion2(ParrotZikBase):
     @property
     def battery_level(self):
         return self.get_battery_level('percent')
+
+    @property
+    def flight_mode(self):
+        data = self.api.get('/api/flight_mode/get')
+        return self._result_to_bool(data.answer.flight_mode['enabled'])
+
+    @flight_mode.setter
+    def flight_mode(self, arg):
+        self.api.set('/api/flight_mode/enable', arg)
