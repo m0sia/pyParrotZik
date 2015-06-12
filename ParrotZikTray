@@ -1,8 +1,11 @@
 #!/usr/bin/env python
+import gtk
 
 import ParrotZik
 import BluetoothPairedDevices
-from SysIndicator import *
+from SysIndicator import MenuItem
+from SysIndicator import UniversalMenu
+from SysIndicator import SysIndicator
 
 REFRESH_FREQUENCY = 1000
 RECONNECT_FREQUENCY = 5000
