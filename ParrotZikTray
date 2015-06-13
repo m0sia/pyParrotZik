@@ -255,6 +255,13 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
 
         self.room_sound_effect_enabled = MenuItem(
             "Enabled", self.toggle_room_sound_effect, sensitive=True, checkitem=True)
+        self.rooms = MenuItem("Rooms", None, sensitive=True, checkitem=False)
+        self.room_sound_effect_submenu.append(self.room_sound_effect_enabled)
+        self.room_sound_effect_submenu.append(self.rooms)
+
+        self.rooms_submenu = Menu()
+        self.rooms.set_submenu(self.rooms_submenu)
+
         self.concert_hall_mode = MenuItem("Concert Hall",
                                           self.toggle_concert_hall_mode,
                                           sensitive=True, checkitem=True)
@@ -264,11 +271,10 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
                                     sensitive=True, checkitem=True)
         self.silent_mode = MenuItem("Silent Room", self.toggle_silent_room_mode,
                                     sensitive=True, checkitem=True)
-        self.room_sound_effect_submenu.append(self.room_sound_effect_enabled)
-        self.room_sound_effect_submenu.append(self.concert_hall_mode)
-        self.room_sound_effect_submenu.append(self.jazz_mode)
-        self.room_sound_effect_submenu.append(self.living_mode)
-        self.room_sound_effect_submenu.append(self.silent_mode)
+        self.rooms_submenu.append(self.concert_hall_mode)
+        self.rooms_submenu.append(self.jazz_mode)
+        self.rooms_submenu.append(self.living_mode)
+        self.rooms_submenu.append(self.silent_mode)
         self.indicator.menu.append(self.room_sound_effect)
 
         self.flight_mode = MenuItem("Flight Mode", self.toggle_flight_mode,
