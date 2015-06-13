@@ -92,8 +92,10 @@ class ParrotZikApi(object):
             self.sock.recv(30)
         else:
             self.sock.recv(7)
-        data = self.sock.recv(1024)
-        data = BeautifulSoup(data)
+
+        data = BeautifulSoup(self.sock.recv(1024))
+        if not hasattr(data, 'anwser'):
+            data = BeautifulSoup(self.sock.recv(1024))
         return data
 
     def close(self):
