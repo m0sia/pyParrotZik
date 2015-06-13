@@ -13,8 +13,8 @@ def generateHeader(requestString):
 
 
 def getRequest(resource):
-    return generateRequest("GET " + resource + '/get')
+    return generateRequest("GET " + resource)
 
 
 def setRequest(resource, args):
-    return generateRequest("SET " + resource + '/set' + "?arg=" + args)
+    return generateRequest("SET " + resource + "?arg=" + args)

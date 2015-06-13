@@ -67,11 +67,19 @@ class ParrotZikApi(object):
             return data.answer.software['sip6']
 
     def get(self, resource):
-        message = ParrotProtocol.getRequest(resource)
+        message = ParrotProtocol.getRequest(resource + '/get')
+        return self.send_message(message)
+
+    def toggle_on(self, resource):
+        message = ParrotProtocol.getRequest(resource + '/enable')
+        return self.send_message(message)
+
+    def toggle_off(self, resource):
+        message = ParrotProtocol.getRequest(resource + '/disable')
         return self.send_message(message)
 
     def set(self, resource, arg):
-        message = ParrotProtocol.setRequest(resource, str(arg).lower())
+        message = ParrotProtocol.setRequest(resource + '/set', str(arg).lower())
         return self.send_message(message)
 
     def send_message(self, message):
@@ -81,9 +89,9 @@ class ParrotZikApi(object):
             self.sock = ""
             return
         if sys.platform == "darwin":
-            data = self.sock.recv(30)
+            self.sock.recv(30)
         else:
-            data = self.sock.recv(7)
+            self.sock.recv(7)
         data = self.sock.recv(1024)
         data = BeautifulSoup(data)
         return data
@@ -216,7 +224,10 @@ class ParrotZikVersion2(ParrotZikBase):
 
     @flight_mode.setter
     def flight_mode(self, arg):
-        self.api.set('/api/flight_mode', arg)
+        if arg:
+            self.api.toggle_on('/api/flight_mode')
+        else:
+            self.api.toggle_off('/api/flight_mode')
 
     @property
     def sound_effect(self):
