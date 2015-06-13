@@ -123,7 +123,6 @@ class Rooms:
 
 
 class ParrotZikBase(object):
-
     def __init__(self, api):
         self.api = api
 

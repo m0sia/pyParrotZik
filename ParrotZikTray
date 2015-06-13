@@ -210,6 +210,8 @@ class ParrotZikVersion1Interface(ParrotZikBaseInterface):
         if self.connected:
             self.parrot.noise_cancel = self.noise_cancelation.get_active()
             self.noise_cancelation.set_active(self.parrot.noise_cancel)
+        else:
+            self.deactivate()
 
     def toggleLouReedMode(self, widget):
         if self.connected:
@@ -218,11 +220,15 @@ class ParrotZikVersion1Interface(ParrotZikBaseInterface):
             self.concert_hall_mode.set_active(self.parrot.concert_hall)
             self.concert_hall_mode.set_sensitive(
                 not self.lou_reed_mode.get_active())
+        else:
+            self.deactivate()
 
     def toggleParrotConcertHall(self, widget):
         if self.connected:
             self.parrot.concert_hall = self.concert_hall_mode.get_active()
             self.concert_hall_mode.set_active(self.parrot.concert_hall)
+        else:
+            self.deactivate()
 
 
 class ParrotZikVersion2Interface(ParrotZikBaseInterface):
@@ -249,7 +255,6 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.noise_cancelation_submenu.append(self.noise_cancelation_mode1)
         self.noise_cancelation_submenu.append(self.noise_cancelation_mode2)
         self.noise_cancelation_submenu.append(self.noise_cancelation_mode3)
-        self.indicator.menu.append(self.noise_cancelation)
 
         self.room_sound_effect = MenuItem(
             "Room Sound Effect", None, sensitive=True, checkitem=False, visible=False)
@@ -280,7 +285,6 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.rooms_submenu.append(self.jazz_mode)
         self.rooms_submenu.append(self.living_mode)
         self.rooms_submenu.append(self.silent_mode)
-        self.indicator.menu.append(self.room_sound_effect)
 
         self.angle_submenu = Menu()
         self.angle.set_submenu(self.angle_submenu)
@@ -305,11 +309,12 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
 
         self.flight_mode = MenuItem("Flight Mode", self.toggle_flight_mode,
                                     sensitive=True, checkitem=True, visible=False)
+        self.indicator.menu.append(self.room_sound_effect)
+        self.indicator.menu.append(self.noise_cancelation)
         self.indicator.menu.append(self.flight_mode)
 
     def activate(self, parrot):
         self.noise_cancelation.show()
-        self.concert_hall_mode.show()
         self.flight_mode.show()
         self.room_sound_effect.show()
         super(ParrotZikVersion2Interface, self).activate(parrot)
@@ -343,11 +348,15 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         if self.connected:
             self.parrot.noise_cancel = self.noise_cancelation.get_active()
             self.noise_cancelation.set_active(self.parrot.noise_cancel)
+        else:
+            self.deactivate()
 
     def toggle_flight_mode(self, widget):
         if self.connected:
             self.parrot.flight_mode = self.flight_mode.get_active()
             self.flight_mode.set_active(self.parrot.flight_mode)
+        else:
+            self.deactivate()
 
     def toggledummy(self, widget):
         print(widget.get_name())
@@ -365,11 +374,14 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.toggle_room(Rooms.SILENT_ROOM)
 
     def toggle_room(self, room):
-        if self.connected and not self.dirty:
-            self.parrot.room = room
-            self.dirty = True
-            self.read_sound_effect_room()
-            self.dirty = False
+        if self.connected:
+            if not self.dirty:
+                self.parrot.room = room
+                self.dirty = True
+                self.read_sound_effect_room()
+                self.dirty = False
+        else:
+            self.deactivate()
 
     def read_sound_effect_room(self):
         active_room = self.parrot.room
@@ -397,6 +409,8 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
             self.angle_120.set_sensitive(sound_effect)
             self.angle_150.set_sensitive(sound_effect)
             self.angle_180.set_sensitive(sound_effect)
+        else:
+            self.deactivate()
 
     def toggle_angle_30(self, widget):
         self.toggle_angle(30)
@@ -417,11 +431,14 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.toggle_angle(180)
 
     def toggle_angle(self, angle):
-        if self.connected and not self.dirty:
-            self.parrot.angle = angle
-            self.dirty = True
-            self.read_sound_effect_angle()
-            self.dirty = False
+        if self.connected:
+            if not self.dirty:
+                self.parrot.angle = angle
+                self.dirty = True
+                self.read_sound_effect_angle()
+                self.dirty = False
+        else:
+            self.deactivate()
 
     def read_sound_effect_angle(self):
         active_angle = self.parrot.angle
