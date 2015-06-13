@@ -256,8 +256,10 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.room_sound_effect_enabled = MenuItem(
             "Enabled", self.toggle_room_sound_effect, sensitive=True, checkitem=True)
         self.rooms = MenuItem("Rooms", None, sensitive=True, checkitem=False)
+        self.angle = MenuItem("Angle", None, sensitive=True, checkitem=False)
         self.room_sound_effect_submenu.append(self.room_sound_effect_enabled)
         self.room_sound_effect_submenu.append(self.rooms)
+        self.room_sound_effect_submenu.append(self.angle)
 
         self.rooms_submenu = Menu()
         self.rooms.set_submenu(self.rooms_submenu)
@@ -277,6 +279,27 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.rooms_submenu.append(self.silent_mode)
         self.indicator.menu.append(self.room_sound_effect)
 
+        self.angle_submenu = Menu()
+        self.angle.set_submenu(self.angle_submenu)
+        self.angle_30 = MenuItem("30", self.toggle_angle_30, sensitive=True,
+                                 checkitem=True)
+        self.angle_60 = MenuItem("60", self.toggle_angle_60, sensitive=True,
+                                 checkitem=True)
+        self.angle_90 = MenuItem("90", self.toggle_angle_90, sensitive=True,
+                                 checkitem=True)
+        self.angle_120 = MenuItem("120", self.toggle_angle_120, sensitive=True,
+                                  checkitem=True)
+        self.angle_150 = MenuItem("150", self.toggle_angle_150, sensitive=True,
+                                  checkitem=True)
+        self.angle_180 = MenuItem("180", self.toggle_angle_180, sensitive=True,
+                                  checkitem=True)
+        self.angle_submenu.append(self.angle_30)
+        self.angle_submenu.append(self.angle_60)
+        self.angle_submenu.append(self.angle_90)
+        self.angle_submenu.append(self.angle_120)
+        self.angle_submenu.append(self.angle_150)
+        self.angle_submenu.append(self.angle_180)
+
         self.flight_mode = MenuItem("Flight Mode", self.toggle_flight_mode,
                                     sensitive=True, checkitem=True, visible=False)
         self.indicator.menu.append(self.flight_mode)
@@ -290,6 +313,7 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.noise_cancelation_enabled.set_active(self.parrot.noise_cancel)
         self.flight_mode.set_active(self.parrot.flight_mode)
         self.read_sound_effect_room()
+        self.read_sound_effect_angle()
 
         sound_effect = self.parrot.sound_effect
         self.room_sound_effect_enabled.set_active(sound_effect)
@@ -297,6 +321,13 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.jazz_mode.set_sensitive(sound_effect)
         self.living_mode.set_sensitive(sound_effect)
         self.silent_mode.set_sensitive(sound_effect)
+
+        self.angle_30.set_sensitive(sound_effect)
+        self.angle_60.set_sensitive(sound_effect)
+        self.angle_90.set_sensitive(sound_effect)
+        self.angle_120.set_sensitive(sound_effect)
+        self.angle_150.set_sensitive(sound_effect)
+        self.angle_180.set_sensitive(sound_effect)
 
     def deactivate(self):
         self.noise_cancelation.hide()
@@ -357,6 +388,50 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
             self.jazz_mode.set_sensitive(sound_effect)
             self.living_mode.set_sensitive(sound_effect)
             self.silent_mode.set_sensitive(sound_effect)
+            self.angle_30.set_sensitive(sound_effect)
+            self.angle_60.set_sensitive(sound_effect)
+            self.angle_90.set_sensitive(sound_effect)
+            self.angle_120.set_sensitive(sound_effect)
+            self.angle_150.set_sensitive(sound_effect)
+            self.angle_180.set_sensitive(sound_effect)
+
+    def toggle_angle_30(self, widget):
+        self.toggle_angle(30)
+
+    def toggle_angle_60(self, widget):
+        self.toggle_angle(60)
+
+    def toggle_angle_90(self, widget):
+        self.toggle_angle(90)
+
+    def toggle_angle_120(self, widget):
+        self.toggle_angle(120)
+
+    def toggle_angle_150(self, widget):
+        self.toggle_angle(150)
+
+    def toggle_angle_180(self, widget):
+        self.toggle_angle(180)
+
+    def toggle_angle(self, angle):
+        if self.connected and not self.dirty:
+            self.parrot.angle = angle
+            self.dirty = True
+            self.read_sound_effect_angle()
+            self.dirty = False
+
+    def read_sound_effect_angle(self):
+        active_angle = self.parrot.angle
+        angle_to_menuitem_map = (
+            (30, self.angle_30),
+            (60, self.angle_60),
+            (90, self.angle_90),
+            (120, self.angle_120),
+            (150, self.angle_150),
+            (180, self.angle_180),
+        )
+        for angle, menu_item in angle_to_menuitem_map:
+            menu_item.set_active(angle == active_angle)
 
 
 if __name__ == "__main__":
