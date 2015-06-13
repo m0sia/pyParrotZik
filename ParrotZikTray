@@ -40,7 +40,7 @@ class ParrotZikIndicator(SysIndicator):
  
         self.menu = Menu()
 
-        self.info_item = MenuItem("Parrot Zik Not connected..",
+        self.info_item = MenuItem("Parrot Zik Not connected",
                                   None, sensitive=False)
         self.menu.append(self.info_item)
 
@@ -57,13 +57,14 @@ class ParrotZikIndicator(SysIndicator):
     def reconnect(self):
         if self.active_interface:
             if not self.active_interface.connected:
-                print "Lost connection"
+                self.info_item.set_label("Lost connection")
                 self.active_interface.deactivate()
             else:
                 self.reconnect.stop()
         else:
             mac = BluetoothPairedDevices.ParrotZikMac()
             if mac:
+                self.info_item.set_label("Connecting")
                 parrot = connect(mac)
                 if parrot.api.sock:
                     if parrot.version.startswith('1'):
@@ -73,9 +74,10 @@ class ParrotZikIndicator(SysIndicator):
                     self.autorefresh(self)
                     self.autorefresh.start(self, REFRESH_FREQUENCY)
                     self.reconnect.stop()
-                    print "Connected"
                 else:
-                    print "Failed to connect to Parrot Zik %s" % mac
+                    self.info_item.set_label("Failed to connect")
+            else:
+                self.info_item.set_label("Parrot Zik Not connected")
 
     @repeat
     def autorefresh(self):
@@ -148,7 +150,6 @@ class ParrotZikBaseInterface(object):
 
     def refresh(self):
         if self.connected:
-            print "Updating battery"
             battery_level = self.parrot.battery_level
             battery_state = self.parrot.battery_state
 
