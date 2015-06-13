@@ -101,6 +101,19 @@ class BatteryStates:
         CHARGING: 'Charging',
     }
 
+class Rooms:
+    CONCERT_HALL = 'concert'
+    JAZZ_CLUB = 'jazz'
+    LIVING_ROOM = 'living'
+    SILENT_ROOM = 'silent'
+    representation = {
+        CONCERT_HALL: 'Concert Hall',
+        JAZZ_CLUB: 'Jazz Club',
+        LIVING_ROOM: 'Living Room',
+        SILENT_ROOM: 'Silent Room',
+    }
+
+
 class ParrotZikBase(object):
 
     def __init__(self, api):
@@ -206,12 +219,21 @@ class ParrotZikVersion2(ParrotZikBase):
         self.api.set('/api/flight_mode', arg)
 
     @property
-    def room_size(self):
+    def sound_effect(self):
+        data = self.api.get('/api/audio/sound_effect/enabled')
+        return self._result_to_bool(data.answer.audio.sound_effect['enabled'])
+
+    @sound_effect.setter
+    def sound_effect(self, arg):
+        self.api.set('/api/audio/sound_effect/enabled', arg)
+
+    @property
+    def room(self):
         data = self.api.get('/api/audio/sound_effect/room_size')
         return data.answer.audio.sound_effect['room_size']
 
-    @room_size.setter
-    def room_size(self, arg):
+    @room.setter
+    def room(self, arg):
         self.api.set('/api/audio/sound_effect/room_size', arg)
 
     @property

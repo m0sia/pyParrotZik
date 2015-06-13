@@ -4,6 +4,7 @@ import gtk
 import BluetoothPairedDevices
 from ParrotZik import BatteryStates
 from ParrotZik import connect
+from ParrotZik import Rooms
 from SysIndicator import MenuItem
 from SysIndicator import Menu
 from SysIndicator import SysIndicator
@@ -223,6 +224,7 @@ class ParrotZikVersion1Interface(ParrotZikBaseInterface):
 
 class ParrotZikVersion2Interface(ParrotZikBaseInterface):
     def __init__(self, indicator):
+        self.dirty = False
         super(ParrotZikVersion2Interface, self).__init__(indicator)
         self.noise_cancelation = MenuItem("Noise Cancellation", None,
                                           sensitive=True, visible=False)
@@ -246,27 +248,28 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.noise_cancelation_submenu.append(self.noise_cancelation_mode3)
         self.indicator.menu.append(self.noise_cancelation)
 
-        self.concert_hall_mode = MenuItem(
-            "Sound Mode", None, sensitive=True, checkitem=False, visible=False)
-        self.concert_hall_mode_submenu = Menu()
-        self.concert_hall_mode.set_submenu(self.concert_hall_mode_submenu)
+        self.room_sound_effect = MenuItem(
+            "Room Sound Effect", None, sensitive=True, checkitem=False, visible=False)
+        self.room_sound_effect_submenu = Menu()
+        self.room_sound_effect.set_submenu(self.room_sound_effect_submenu)
 
-        self.concert_hall_mode_enabled = MenuItem("Enabled", None,
-                                                  sensitive=True, checkitem=True)
-        self.concert_hall = MenuItem("Concert Hall", None,
-                                     sensitive=True, checkitem=True)
-        self.jazz_mode = MenuItem("Jazz Club", None,
+        self.room_sound_effect_enabled = MenuItem(
+            "Enabled", self.toggle_room_sound_effect, sensitive=True, checkitem=True)
+        self.concert_hall_mode = MenuItem("Concert Hall",
+                                          self.toggle_concert_hall_mode,
+                                          sensitive=True, checkitem=True)
+        self.jazz_mode = MenuItem("Jazz Club", self.toggle_jazz_club_mode,
                                   sensitive=True, checkitem=True)
-        self.living_mode = MenuItem("Libing Room", None,
+        self.living_mode = MenuItem("Libing Room", self.toggle_living_room_mode,
                                     sensitive=True, checkitem=True)
-        self.silent_mode = MenuItem("Silent Room", None,
+        self.silent_mode = MenuItem("Silent Room", self.toggle_silent_room_mode,
                                     sensitive=True, checkitem=True)
-        self.concert_hall_mode_submenu.append(self.concert_hall_mode_enabled)
-        self.concert_hall_mode_submenu.append(self.concert_hall)
-        self.concert_hall_mode_submenu.append(self.jazz_mode)
-        self.concert_hall_mode_submenu.append(self.living_mode)
-        self.concert_hall_mode_submenu.append(self.silent_mode)
-        self.indicator.menu.append(self.concert_hall_mode)
+        self.room_sound_effect_submenu.append(self.room_sound_effect_enabled)
+        self.room_sound_effect_submenu.append(self.concert_hall_mode)
+        self.room_sound_effect_submenu.append(self.jazz_mode)
+        self.room_sound_effect_submenu.append(self.living_mode)
+        self.room_sound_effect_submenu.append(self.silent_mode)
+        self.indicator.menu.append(self.room_sound_effect)
 
         self.flight_mode = MenuItem("Flight Mode", self.toggle_flight_mode,
                                     sensitive=True, checkitem=True, visible=False)
@@ -276,9 +279,25 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.noise_cancelation.show()
         self.concert_hall_mode.show()
         self.flight_mode.show()
+        self.room_sound_effect.show()
         super(ParrotZikVersion2Interface, self).activate(parrot)
         self.noise_cancelation_enabled.set_active(self.parrot.noise_cancel)
         self.flight_mode.set_active(self.parrot.flight_mode)
+        self.read_sound_effect_room()
+
+        sound_effect = self.parrot.sound_effect
+        self.room_sound_effect_enabled.set_active(sound_effect)
+        self.concert_hall_mode.set_sensitive(sound_effect)
+        self.jazz_mode.set_sensitive(sound_effect)
+        self.living_mode.set_sensitive(sound_effect)
+        self.silent_mode.set_sensitive(sound_effect)
+
+    def deactivate(self):
+        self.noise_cancelation.hide()
+        self.concert_hall_mode.hide()
+        self.flight_mode.hide()
+        self.room_sound_effect.hide()
+        super(ParrotZikVersion2Interface, self).deactivate()
 
     def toggleANC(self, widget):
         if self.connected:
@@ -292,6 +311,46 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
 
     def toggledummy(self, widget):
         print(widget.get_name())
+
+    def toggle_concert_hall_mode(self, widget):
+        self.toggle_room(Rooms.CONCERT_HALL)
+
+    def toggle_jazz_club_mode(self, widget):
+        self.toggle_room(Rooms.JAZZ_CLUB)
+
+    def toggle_living_room_mode(self, widget):
+        self.toggle_room(Rooms.LIVING_ROOM)
+
+    def toggle_silent_room_mode(self, widget):
+        self.toggle_room(Rooms.SILENT_ROOM)
+
+    def toggle_room(self, room):
+        if self.connected and not self.dirty:
+            self.parrot.room = room
+            self.dirty = True
+            self.read_sound_effect_room()
+            self.dirty = False
+
+    def read_sound_effect_room(self):
+        active_room = self.parrot.room
+        room_to_menuitem_map = (
+            (Rooms.CONCERT_HALL, self.concert_hall_mode),
+            (Rooms.JAZZ_CLUB, self.jazz_mode),
+            (Rooms.LIVING_ROOM, self.living_mode),
+            (Rooms.SILENT_ROOM, self.silent_mode),
+        )
+        for room, menu_item in room_to_menuitem_map:
+            menu_item.set_active(room == active_room)
+
+    def toggle_room_sound_effect(self, widget):
+        if self.connected:
+            self.parrot.sound_effect = self.room_sound_effect_enabled.get_active()
+            sound_effect = self.parrot.sound_effect
+            self.room_sound_effect_enabled.set_active(sound_effect)
+            self.concert_hall_mode.set_sensitive(sound_effect)
+            self.jazz_mode.set_sensitive(sound_effect)
+            self.living_mode.set_sensitive(sound_effect)
+            self.silent_mode.set_sensitive(sound_effect)
 
 
 if __name__ == "__main__":
