@@ -145,8 +145,10 @@ class ParrotZikBaseInterface(object):
 
     def toggleAuto(self, widget):
         if self.connected:
-            self.parrot.auto_connection = self.auto_connection.get_active()
-            self.auto_connection.set_active(self.parrot.auto_connection)
+            self.parrot.auto_connect = self.auto_connection.get_active()
+            self.auto_connection.set_active(self.parrot.auto_connect)
+        else:
+            self.deactivate()
 
     def refresh(self):
         if self.connected:

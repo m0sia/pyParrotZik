@@ -153,7 +153,7 @@ class ParrotZikBase(object):
 
     @auto_connect.setter
     def auto_connect(self, arg):
-        self.api.get("/api/system/auto_connection/enabled", arg)
+        self.api.set("/api/system/auto_connection/enabled", arg)
 
     @property
     def anc_phone_mode(self):
