@@ -57,14 +57,15 @@ def connect(addr=None):
 class ParrotZikApi(object):
     def __init__(self, socket):
         self.sock = socket
+        self.notifications = []
 
     @property
     def version(self):
-        data = self.get("/api/software/version")
+        answer = self.get("/api/software/version")
         try:
-            return data.answer.software["version"]
+            return answer.software["version"]
         except KeyError:
-            return data.answer.software['sip6']
+            return answer.software['sip6']
 
     def get(self, resource):
         message = ParrotProtocol.getRequest(resource + '/get')
@@ -94,9 +95,13 @@ class ParrotZikApi(object):
             self.sock.recv(7)
 
         data = BeautifulSoup(self.sock.recv(1024))
-        if not hasattr(data, 'anwser'):
+        while not data.answer:
+            if data.notify:
+                self.notifications.append(data.notify)
+            else:
+                raise AssertionError('Unknown response')
             data = BeautifulSoup(self.sock.recv(1024))
-        return data
+        return data.answer
 
     def close(self):
         self.sock.close()
@@ -156,23 +161,23 @@ class ParrotZikBase(object):
 
     @property
     def battery_state(self):
-        data = self.api.get("/api/system/battery")
-        return data.answer.system.battery["state"]
+        answer = self.api.get("/api/system/battery")
+        return answer.system.battery["state"]
 
     def get_battery_level(self, field_name):
-        data = self.api.get("/api/system/battery")
-        return int(data.answer.system.battery[field_name])
+        answer = self.api.get("/api/system/battery")
+        return int(answer.system.battery[field_name])
 
     @property
     def friendly_name(self):
-        data = self.api.get("/api/bluetooth/friendlyname")
-        return data.answer.bluetooth["friendlyname"]
+        answer = self.api.get("/api/bluetooth/friendlyname")
+        return answer.bluetooth["friendlyname"]
 
     @property
     def auto_connect(self):
-        data = self.api.get("/api/system/auto_connection/enabled")
+        answer = self.api.get("/api/system/auto_connection/enabled")
         return self._result_to_bool(
-            data.answer.system.auto_connection["enabled"])
+            answer.system.auto_connection["enabled"])
 
     @auto_connect.setter
     def auto_connect(self, arg):
@@ -180,9 +185,9 @@ class ParrotZikBase(object):
 
     @property
     def anc_phone_mode(self):
-        data = self.api.get("/api/system/anc_phone_mode/enabled")
+        answer = self.api.get("/api/system/anc_phone_mode/enabled")
         return self._result_to_bool(
-            data.answer.system.anc_phone_mode["enabled"])
+            answer.system.anc_phone_mode["enabled"])
 
     def _result_to_bool(self, result):
         if result == "true":
@@ -211,9 +216,9 @@ class ParrotZikVersion1(ParrotZikBase):
 
     @property
     def lou_reed_mode(self):
-        data = self.api.get("/api/audio/specific_mode/enabled")
+        answer = self.api.get("/api/audio/specific_mode/enabled")
         return self._result_to_bool(
-            data.answer.audio.specific_mode["enabled"])
+            answer.audio.specific_mode["enabled"])
 
     @lou_reed_mode.setter
     def lou_reed_mode(self, arg):
@@ -221,9 +226,9 @@ class ParrotZikVersion1(ParrotZikBase):
 
     @property
     def concert_hall(self):
-        data = self.api.get("/api/audio/sound_effect/enabled")
+        answer = self.api.get("/api/audio/sound_effect/enabled")
         return self._result_to_bool(
-            data.answer.audio.sound_effect["enabled"])
+            answer.audio.sound_effect["enabled"])
 
     @concert_hall.setter
     def concert_hall(self, arg):
@@ -231,9 +236,9 @@ class ParrotZikVersion1(ParrotZikBase):
 
     @property
     def cancel_noise(self):
-        data = self.api.get("/api/audio/noise_cancellation/enabled")
+        answer = self.api.get("/api/audio/noise_cancellation/enabled")
         return self._result_to_bool(
-            data.answer.audio.noise_cancellation["enabled"])
+            answer.audio.noise_cancellation["enabled"])
 
     @cancel_noise.setter
     def cancel_noise(self, arg):
@@ -263,8 +268,8 @@ class ParrotZikVersion2(ParrotZikBase):
 
     @property
     def flight_mode(self):
-        data = self.api.get('/api/flight_mode')
-        return self._result_to_bool(data.answer.flight_mode['enabled'])
+        answer = self.api.get('/api/flight_mode')
+        return self._result_to_bool(answer.flight_mode['enabled'])
 
     @flight_mode.setter
     def flight_mode(self, arg):
@@ -275,8 +280,8 @@ class ParrotZikVersion2(ParrotZikBase):
 
     @property
     def sound_effect(self):
-        data = self.api.get('/api/audio/sound_effect/enabled')
-        return self._result_to_bool(data.answer.audio.sound_effect['enabled'])
+        answer = self.api.get('/api/audio/sound_effect/enabled')
+        return self._result_to_bool(answer.audio.sound_effect['enabled'])
 
     @sound_effect.setter
     def sound_effect(self, arg):
@@ -284,8 +289,8 @@ class ParrotZikVersion2(ParrotZikBase):
 
     @property
     def room(self):
-        data = self.api.get('/api/audio/sound_effect/room_size')
-        return data.answer.audio.sound_effect['room_size']
+        answer = self.api.get('/api/audio/sound_effect/room_size')
+        return answer.audio.sound_effect['room_size']
 
     @room.setter
     def room(self, arg):
@@ -293,18 +298,18 @@ class ParrotZikVersion2(ParrotZikBase):
 
     @property
     def external_noise(self):
-        data = self.api.get('/api/audio/noise')
-        return int(data.answer.audio.noise['external'])
+        answer = self.api.get('/api/audio/noise')
+        return int(answer.audio.noise['external'])
 
     @property
     def internal_noise(self):
-        data = self.api.get('/api/audio/noise')
-        return int(data.answer.audio.noise['internal'])
+        answer = self.api.get('/api/audio/noise')
+        return int(answer.audio.noise['internal'])
 
     @property
     def angle(self):
-        data = self.api.get('/api/audio/sound_effect/angle')
-        return int(data.answer.audio.sound_effect['angle'])
+        answer = self.api.get('/api/audio/sound_effect/angle')
+        return int(answer.audio.sound_effect['angle'])
 
     @angle.setter
     def angle(self, arg):
@@ -312,8 +317,8 @@ class ParrotZikVersion2(ParrotZikBase):
 
     @property
     def noise_control(self):
-        data = self.api.get('/api/audio/noise_control')
-        return NoiseControl.from_noise_control(data.answer.audio.noise_control)
+        answer = self.api.get('/api/audio/noise_control')
+        return NoiseControl.from_noise_control(answer.audio.noise_control)
 
     @noise_control.setter
     def noise_control(self, arg):
@@ -321,5 +326,5 @@ class ParrotZikVersion2(ParrotZikBase):
 
     @property
     def noise_control_enabled(self):
-        data = self.api.get('/api/audio/noise_control/enabled')
-        return self._result_to_bool(data.answer.audio.noise_control['enabled'])
+        answer = self.api.get('/api/audio/noise_control/enabled')
+        return self._result_to_bool(answer.audio.noise_control['enabled'])
