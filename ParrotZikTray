@@ -120,19 +120,17 @@ class ParrotZikBaseInterface(object):
 
     def activate(self, parrot):
         self.parrot = parrot
-        self.battery_level.show()
-        self.battery_state.show()
-        self.firmware_version.show()
-        self.auto_connection.show()
-
         self.read_battery()
         self.indicator.info_item.set_label("Connected to: "
                                            + self.parrot.friendly_name)
         self.firmware_version.set_label(
             "Firmware version: " + self.parrot.version)
-
         self.auto_connection.set_active(self.parrot.auto_connect)
 
+        self.battery_level.show()
+        self.battery_state.show()
+        self.firmware_version.show()
+        self.auto_connection.show()
         self.indicator.active_interface = self
         self.indicator.menu.reposition()
 
