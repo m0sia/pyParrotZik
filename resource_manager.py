@@ -1,8 +1,10 @@
 from operator import itemgetter
 import sys
+
 from BeautifulSoup import BeautifulSoup
 
 from message import Message
+
 
 class ResourceManagerBase(object):
     resources = [
@@ -137,4 +139,3 @@ class Version2ResourceManager(ResourceManagerBase):
         '/api/audio/noise_control/enabled': ['get', 'set'],
         '/api/audio/track/metadata': ['get'],
     }
-

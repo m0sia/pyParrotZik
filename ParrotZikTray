@@ -3,12 +3,12 @@ import functools
 
 import gtk
 
-import BluetoothPairedDevices
+import bluetooth_paired_devices
 from ParrotZik import BatteryStates
 from ParrotZik import ParrotZikVersion1
 from ParrotZik import ParrotZikVersion2
 from ParrotZik import NoiseControlTypes
-from ParrotZik import connect
+from bluetooth_paired_devices import connect
 from ParrotZik import Rooms
 from SysIndicator import MenuItem
 from SysIndicator import Menu
@@ -67,7 +67,7 @@ class ParrotZikIndicator(SysIndicator):
             else:
                 self.reconnect.stop()
         else:
-            mac = BluetoothPairedDevices.ParrotZikMac()
+            mac = bluetooth_paired_devices.get_parrot_zik_mac()
             if mac:
                 self.info_item.set_label("Connecting")
                 resource_manager = connect(mac)
