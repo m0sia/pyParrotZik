@@ -163,13 +163,13 @@ class ParrotZikBase(object):
             data.answer.system.anc_phone_mode["enabled"])
 
     @property
-    def noise_cancel(self):
+    def cancel_noise(self):
         data = self.api.get("/api/audio/noise_cancellation/enabled")
         return self._result_to_bool(
             data.answer.audio.noise_cancellation["enabled"])
 
-    @noise_cancel.setter
-    def noise_cancel(self, arg):
+    @cancel_noise.setter
+    def cancel_noise(self, arg):
         self.api.set("/api/audio/noise_cancellation/enabled", arg)
 
     def _result_to_bool(self, result):

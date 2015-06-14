@@ -101,7 +101,7 @@ class ParrotZikBaseInterface(object):
                                       visible=False)
         self.firmware_version = MenuItem("Firmware Version:", None,
                                          sensitive=False, visible=False)
-        self.auto_connection = MenuItem("Auto Connection", self.toggleAuto,
+        self.auto_connection = MenuItem("Auto Connection", self.toggle_auto_connection,
                                         checkitem=True, visible=False)
         self.indicator.menu.append(self.battery_level)
         self.indicator.menu.append(self.battery_state)
@@ -143,7 +143,7 @@ class ParrotZikBaseInterface(object):
         self.indicator.menu.reposition()
         self.indicator.active_interface = None
 
-    def toggleAuto(self, widget):
+    def toggle_auto_connection(self, widget):
         if self.connected:
             self.parrot.auto_connect = self.auto_connection.get_active()
             self.auto_connection.set_active(self.parrot.auto_connect)
@@ -179,12 +179,13 @@ class ParrotZikBaseInterface(object):
 class ParrotZikVersion1Interface(ParrotZikBaseInterface):
     def __init__(self, indicator):
         super(ParrotZikVersion1Interface, self).__init__(indicator)
-        self.noise_cancelation = MenuItem("Noise Cancellation", self.toggleANC,
-                                          checkitem=True, visible=False)
-        self.lou_reed_mode = MenuItem("Lou Reed Mode", self.toggleLouReedMode,
+        self.noise_cancelation = MenuItem(
+            "Noise Cancellation", self.toggle_noise_cancelation,
+            checkitem=True, visible=False)
+        self.lou_reed_mode = MenuItem("Lou Reed Mode", self.toggle_lou_reed_mode,
                                       checkitem=True, visible=False)
         self.concert_hall_mode = MenuItem(
-            "Concert Hall Mode", self.toggleParrotConcertHall,
+            "Concert Hall Mode", self.toggle_parrot_concert_hall,
             checkitem=True, visible=False)
         self.indicator.menu.append(self.noise_cancelation)
         self.indicator.menu.append(self.lou_reed_mode)
@@ -206,14 +207,14 @@ class ParrotZikVersion1Interface(ParrotZikBaseInterface):
         self.concert_hall_mode.hide()
         super(ParrotZikVersion1Interface, self).deactivate()
 
-    def toggleANC(self, widget):
+    def toggle_noise_cancelation(self, widget):
         if self.connected:
-            self.parrot.noise_cancel = self.noise_cancelation.get_active()
-            self.noise_cancelation.set_active(self.parrot.noise_cancel)
+            self.parrot.cancel_noise = self.noise_cancelation.get_active()
+            self.noise_cancelation.set_active(self.parrot.cancel_noise)
         else:
             self.deactivate()
 
-    def toggleLouReedMode(self, widget):
+    def toggle_lou_reed_mode(self, widget):
         if self.connected:
             self.parrot.lou_reed_mode = self.lou_reed_mode.get_active()
             self.lou_reed_mode.set_active(self.parrot.lou_reed_mode)
@@ -223,7 +224,7 @@ class ParrotZikVersion1Interface(ParrotZikBaseInterface):
         else:
             self.deactivate()
 
-    def toggleParrotConcertHall(self, widget):
+    def toggle_parrot_concert_hall(self, widget):
         if self.connected:
             self.parrot.concert_hall = self.concert_hall_mode.get_active()
             self.concert_hall_mode.set_active(self.parrot.concert_hall)
@@ -239,7 +240,7 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.noise_cancelation_submenu = Menu()
         self.noise_cancelation.set_submenu(self.noise_cancelation_submenu)
 
-        self.noise_cancelation_enabled = MenuItem("Enabled", self.toggleANC,
+        self.noise_cancelation_enabled = MenuItem("Enabled", self.toggle_noise_cancelation,
                                                   checkitem=True)
         self.noise_cancelation_mode0 = MenuItem("Mode0", self.toggledummy,
                                                 checkitem=True)
@@ -310,7 +311,7 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.flight_mode.show()
         self.room_sound_effect.show()
         super(ParrotZikVersion2Interface, self).activate(parrot)
-        self.noise_cancelation_enabled.set_active(self.parrot.noise_cancel)
+        self.noise_cancelation_enabled.set_active(self.parrot.cancel_noise)
         self.flight_mode.set_active(self.parrot.flight_mode)
         self.read_sound_effect_room()
         self.read_sound_effect_angle()
@@ -336,10 +337,10 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.room_sound_effect.hide()
         super(ParrotZikVersion2Interface, self).deactivate()
 
-    def toggleANC(self, widget):
+    def toggle_noise_cancelation(self, widget):
         if self.connected:
-            self.parrot.noise_cancel = self.noise_cancelation_enabled.get_active()
-            self.noise_cancelation_enabled.set_active(self.parrot.noise_cancel)
+            self.parrot.cancel_noise = self.noise_cancelation_enabled.get_active()
+            self.noise_cancelation_enabled.set_active(self.parrot.cancel_noise)
         else:
             self.deactivate()
 
