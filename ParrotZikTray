@@ -125,6 +125,7 @@ class ParrotZikBaseInterface(object):
         self.firmware_version.show()
         self.auto_connection.show()
 
+        self.read_battery()
         self.indicator.info_item.set_label("Connected to: "
                                            + self.parrot.friendly_name)
         self.firmware_version.set_label(
@@ -154,6 +155,9 @@ class ParrotZikBaseInterface(object):
             self.deactivate()
 
     def refresh(self):
+        self.read_battery()
+
+    def read_battery(self):
         if self.connected:
             battery_level = self.parrot.battery_level
             battery_state = self.parrot.battery_state
