@@ -47,9 +47,9 @@ class ResourceManagerBase(object):
             self.sock = ""
             return
         else:
-            return self.get_answer()
+            return self.get_answer(message)
 
-    def get_answer(self):
+    def get_answer(self, message):
         data = self.receive_message()
         notifications = []
         while not data.answer:
@@ -58,14 +58,15 @@ class ResourceManagerBase(object):
             else:
                 raise AssertionError('Unknown response')
             data = self.receive_message()
-        self.handle_notifications(notifications)
+        self.handle_notifications(notifications, message.resource)
         return data.answer
 
-    def handle_notifications(self, notifications):
+    def handle_notifications(self, notifications, resource):
         paths = map(itemgetter('path'), notifications)
         clean_paths = set(map(self._clean_path, paths))
         for path in clean_paths:
-            self.fetch(path)
+            if resource != path:
+                self.fetch(path)
 
     def _clean_path(self, path):
         return path.rsplit('/', 1)[0].encode('utf-8')
@@ -95,7 +96,7 @@ class GenericResourceManager(ResourceManagerBase):
 
     def get_resource_manager(self, resource_manager_class):
         resource_manager = resource_manager_class(self.sock, self.resource_values)
-        resource_manager.handle_notifications(self.notifications)
+        resource_manager.handle_notifications(self.notifications, '/api/software/version')
         return resource_manager
 
     @property
