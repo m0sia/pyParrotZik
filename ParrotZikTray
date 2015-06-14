@@ -202,7 +202,7 @@ class ParrotZikVersion1Interface(ParrotZikBaseInterface):
         self.concert_hall_mode.show()
         super(ParrotZikVersion1Interface, self).activate(parrot)
 
-        self.noise_cancelation.set_active(self.parrot.noise_cancel)
+        self.noise_cancelation.set_active(self.parrot.cancel_noise)
         self.lou_reed_mode.set_active(self.parrot.lou_reed_mode)
         self.concert_hall_mode.set_active(self.parrot.concert_hall)
 
