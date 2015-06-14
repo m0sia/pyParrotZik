@@ -235,21 +235,20 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
     def __init__(self, indicator):
         self.dirty = False
         super(ParrotZikVersion2Interface, self).__init__(indicator)
-        self.noise_cancelation = MenuItem("Noise Cancellation", None,
-                                          sensitive=True, visible=False)
+        self.noise_cancelation = MenuItem("Noise Cancellation", None, visible=False)
         self.noise_cancelation_submenu = Menu()
         self.noise_cancelation.set_submenu(self.noise_cancelation_submenu)
 
         self.noise_cancelation_enabled = MenuItem("Enabled", self.toggleANC,
-                                                  sensitive=False, checkitem=True)
+                                                  checkitem=True)
         self.noise_cancelation_mode0 = MenuItem("Mode0", self.toggledummy,
-                                                sensitive=False, checkitem=True)
+                                                checkitem=True)
         self.noise_cancelation_mode1 = MenuItem("Mode1", self.toggledummy,
-                                                sensitive=False, checkitem=True)
+                                                checkitem=True)
         self.noise_cancelation_mode2 = MenuItem("Mode2", self.toggledummy,
-                                                sensitive=False, checkitem=True)
+                                                checkitem=True)
         self.noise_cancelation_mode3 = MenuItem("Mode3", self.toggledummy,
-                                                sensitive=False, checkitem=True)
+                                                checkitem=True)
         self.noise_cancelation_submenu.append(self.noise_cancelation_enabled)
         self.noise_cancelation_submenu.append(self.noise_cancelation_mode0)
         self.noise_cancelation_submenu.append(self.noise_cancelation_mode1)
@@ -257,14 +256,14 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.noise_cancelation_submenu.append(self.noise_cancelation_mode3)
 
         self.room_sound_effect = MenuItem(
-            "Room Sound Effect", None, sensitive=True, checkitem=False, visible=False)
+            "Room Sound Effect", None, visible=False)
         self.room_sound_effect_submenu = Menu()
         self.room_sound_effect.set_submenu(self.room_sound_effect_submenu)
 
         self.room_sound_effect_enabled = MenuItem(
-            "Enabled", self.toggle_room_sound_effect, sensitive=True, checkitem=True)
-        self.rooms = MenuItem("Rooms", None, sensitive=True, checkitem=False)
-        self.angle = MenuItem("Angle", None, sensitive=True, checkitem=False)
+            "Enabled", self.toggle_room_sound_effect, checkitem=True)
+        self.rooms = MenuItem("Rooms", None, checkitem=False)
+        self.angle = MenuItem("Angle", None, checkitem=False)
         self.room_sound_effect_submenu.append(self.room_sound_effect_enabled)
         self.room_sound_effect_submenu.append(self.rooms)
         self.room_sound_effect_submenu.append(self.angle)
@@ -272,15 +271,14 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.rooms_submenu = Menu()
         self.rooms.set_submenu(self.rooms_submenu)
 
-        self.concert_hall_mode = MenuItem("Concert Hall",
-                                          self.toggle_concert_hall_mode,
-                                          sensitive=True, checkitem=True)
-        self.jazz_mode = MenuItem("Jazz Club", self.toggle_jazz_club_mode,
-                                  sensitive=True, checkitem=True)
-        self.living_mode = MenuItem("Libing Room", self.toggle_living_room_mode,
-                                    sensitive=True, checkitem=True)
-        self.silent_mode = MenuItem("Silent Room", self.toggle_silent_room_mode,
-                                    sensitive=True, checkitem=True)
+        self.concert_hall_mode = MenuItem(
+            "Concert Hall", self.toggle_concert_hall_mode, checkitem=True)
+        self.jazz_mode = MenuItem(
+            "Jazz Club", self.toggle_jazz_club_mode, checkitem=True)
+        self.living_mode = MenuItem(
+            "Libing Room", self.toggle_living_room_mode, checkitem=True)
+        self.silent_mode = MenuItem(
+            "Silent Room", self.toggle_silent_room_mode, checkitem=True)
         self.rooms_submenu.append(self.concert_hall_mode)
         self.rooms_submenu.append(self.jazz_mode)
         self.rooms_submenu.append(self.living_mode)
@@ -288,18 +286,12 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
 
         self.angle_submenu = Menu()
         self.angle.set_submenu(self.angle_submenu)
-        self.angle_30 = MenuItem("30", self.toggle_angle_30, sensitive=True,
-                                 checkitem=True)
-        self.angle_60 = MenuItem("60", self.toggle_angle_60, sensitive=True,
-                                 checkitem=True)
-        self.angle_90 = MenuItem("90", self.toggle_angle_90, sensitive=True,
-                                 checkitem=True)
-        self.angle_120 = MenuItem("120", self.toggle_angle_120, sensitive=True,
-                                  checkitem=True)
-        self.angle_150 = MenuItem("150", self.toggle_angle_150, sensitive=True,
-                                  checkitem=True)
-        self.angle_180 = MenuItem("180", self.toggle_angle_180, sensitive=True,
-                                  checkitem=True)
+        self.angle_30 = MenuItem("30", self.toggle_angle_30, checkitem=True)
+        self.angle_60 = MenuItem("60", self.toggle_angle_60, checkitem=True)
+        self.angle_90 = MenuItem("90", self.toggle_angle_90, checkitem=True)
+        self.angle_120 = MenuItem("120", self.toggle_angle_120, checkitem=True)
+        self.angle_150 = MenuItem("150", self.toggle_angle_150, checkitem=True)
+        self.angle_180 = MenuItem("180", self.toggle_angle_180, checkitem=True)
         self.angle_submenu.append(self.angle_30)
         self.angle_submenu.append(self.angle_60)
         self.angle_submenu.append(self.angle_90)
@@ -308,7 +300,7 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.angle_submenu.append(self.angle_180)
 
         self.flight_mode = MenuItem("Flight Mode", self.toggle_flight_mode,
-                                    sensitive=True, checkitem=True, visible=False)
+                                    checkitem=True, visible=False)
         self.indicator.menu.append(self.room_sound_effect)
         self.indicator.menu.append(self.noise_cancelation)
         self.indicator.menu.append(self.flight_mode)
