@@ -19,6 +19,7 @@ class ResourceManagerBase(object):
 
     def fetch(self, resource):
         assert resource in self.resources, 'Unknown resource {}'.format(resource)
+        assert 'get' in self.resources[resource], 'Unhandled method'
         message = ParrotProtocol.getRequest(resource + '/get')
         result = self.send_message(message)
         self.resource_values[resource] = result
@@ -26,18 +27,21 @@ class ResourceManagerBase(object):
 
     def toggle_on(self, resource):
         assert resource in self.resources, 'Unknown resource {}'.format(resource)
+        assert 'enable' in self.resources[resource], 'Unhandled method'
         message = ParrotProtocol.getRequest(resource + '/enable')
         self.send_message(message)
         self.fetch(resource)
 
     def toggle_off(self, resource):
         assert resource in self.resources, 'Unknown resource {}'.format(resource)
+        assert 'disable' in self.resources[resource], 'Unhandled method'
         message = ParrotProtocol.getRequest(resource + '/disable')
         self.send_message(message)
         self.fetch(resource)
 
     def set(self, resource, arg):
         assert resource in self.resources, 'Unknown resource {}'.format(resource)
+        assert 'set' in self.resources[resource], 'Unhandled method'
         message = ParrotProtocol.setRequest(resource + '/set', str(arg).lower())
         self.send_message(message)
         self.fetch(resource)
@@ -78,7 +82,7 @@ class ResourceManagerBase(object):
 
 class GenericResourceManager(ResourceManagerBase):
     resources = {
-        '/api/software/version',
+        '/api/software/version': ['get'],
     }
 
     def __init__(self, sock):
@@ -105,31 +109,31 @@ class GenericResourceManager(ResourceManagerBase):
 
 class Version1ResourceManager(ResourceManagerBase):
     resources = {
-        '/api/software/version',
-        '/api/system/battery',
-        '/api/bluetooth/friendlyname',
-        '/api/system/auto_connection/enabled',
-        '/api/system/anc_phone_mode/enabled',
-        '/api/audio/specific_mode/enabled',
-        '/api/audio/sound_effect/enabled',
-        '/api/audio/noise_cancellation/enabled',
+        '/api/software/version': ['get'],
+        '/api/system/battery': ['get'],
+        '/api/bluetooth/friendlyname': ['get'],
+        '/api/system/auto_connection/enabled': ['get', 'set'],
+        '/api/system/anc_phone_mode/enabled': ['get', 'set'],
+        '/api/audio/specific_mode/enabled': ['get', 'set'],
+        '/api/audio/sound_effect/enabled': ['get', 'set'],
+        '/api/audio/noise_cancellation/enabled': ['get', 'set'],
     }
 
 class Version2ResourceManager(ResourceManagerBase):
     resources = {
-        '/api/software/version',
-        '/api/system/battery',
-        '/api/system/pi',
-        '/api/bluetooth/friendlyname',
-        '/api/system/auto_connection/enabled',
-        '/api/system/anc_phone_mode/enabled',
-        '/api/flight_mode',
-        '/api/audio/sound_effect/enabled',
-        '/api/audio/sound_effect/room_size',
-        '/api/audio/sound_effect/angle',
-        '/api/audio/noise',
-        '/api/audio/noise_control',
-        '/api/audio/noise_control/enabled',
-        '/api/audio/track/metadata',
+        '/api/software/version': ['get'],
+        '/api/system/battery': ['get'],
+        '/api/system/pi': ['get'],
+        '/api/bluetooth/friendlyname': ['get'],
+        '/api/system/auto_connection/enabled': ['get', 'set'],
+        '/api/system/anc_phone_mode/enabled': ['get', 'set'],
+        '/api/flight_mode': ['get', 'enable', 'disable'],
+        '/api/audio/sound_effect/enabled': ['get', 'set'],
+        '/api/audio/sound_effect/room_size': ['get', 'set'],
+        '/api/audio/sound_effect/angle': ['get', 'set'],
+        '/api/audio/noise': ['get'],
+        '/api/audio/noise_control': ['get'],
+        '/api/audio/noise_control/enabled': ['get', 'set'],
+        '/api/audio/track/metadata': ['get'],
     }
 
