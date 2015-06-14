@@ -1,8 +1,8 @@
 from operator import itemgetter
 import sys
 from BeautifulSoup import BeautifulSoup
-import ParrotProtocol
 
+from message import Message
 
 class ResourceManagerBase(object):
     resources = [
@@ -37,12 +37,8 @@ class ResourceManagerBase(object):
 
     def _create_message(self, resource, method, arg=None):
         assert resource in self.resources, 'Unknown resource {}'.format(resource)
-        assert method in self.resources[resource], 'Unhandled method {} for {}'.format(
-            method, resource)
-        if method == 'set':
-            return ParrotProtocol.setRequest(resource + '/' + method, str(arg).lower())
-        else:
-            return ParrotProtocol.getRequest(resource + '/' + method)
+        assert method in self.resources[resource], 'Unhandled method {} for {}'.format(method, resource)
+        return Message(resource, method, arg)
 
     def send_message(self, message):
         try:

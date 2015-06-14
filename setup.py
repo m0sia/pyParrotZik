@@ -43,7 +43,7 @@ setup(
         'BeautifulSoup', 'bluetooth'
     ],
 
-    py_modules=['ParrotZik', 'ParrotProtocol', 'resource_manager'],
+    py_modules=['ParrotZik', 'message', 'resource_manager'],
 
     scripts=["ParrotZikTray"]
 )
