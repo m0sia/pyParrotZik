@@ -54,12 +54,15 @@ class ResourceManagerBase(object):
 
     def get_answer(self):
         data = self.receive_message()
+        notifications = []
         while not data.answer:
             if data.notify:
-                self.handle_notification(data.notify)
+                notifications.append(data.notify)
             else:
                 raise AssertionError('Unknown response')
             data = self.receive_message()
+        for notification in notifications:
+            self.handle_notification(notification)
         return data.answer
 
     def handle_notification(self, notification):
