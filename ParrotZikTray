@@ -448,5 +448,8 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
 
 
 if __name__ == "__main__":
-    indicator = ParrotZikIndicator()
-    indicator.main()
+    try:
+        indicator = ParrotZikIndicator()
+        indicator.main()
+    except KeyboardInterrupt:
+        pass
