@@ -17,11 +17,16 @@ def get_parrot_zik_mac():
         p = re.compile('90:03:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}|'
                        'A0:14:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}')
         if sys.platform == "linux2":
-            out = os.popen("bluez-test-device list").read()
-            res = p.findall(out)
-            if len(res) > 0:
-                return res[0]
-
+            bluetooth_on = int(os.popen('bluez-test-adapter powered').read())
+            if bluetooth_on == 1:
+                out = os.popen("bluez-test-device list").read()
+                res = p.findall(out)
+                if len(res) > 0:
+                    return res[0]
+                else:
+                    raise DeviceNotConnected
+            else:
+                raise BluetoothIsNotOn
         elif sys.platform == "darwin":
             fd = open("/Library/Preferences/com.apple.Bluetooth.plist", "rb")
             plist = binplist.BinaryPlist(file_obj=fd)
@@ -30,6 +35,8 @@ def get_parrot_zik_mac():
                 for mac in parsed_plist['PairedDevices']:
                     if p.match(mac.replace("-", ":")):
                         return mac.replace("-", ":")
+                else:
+                    raise DeviceNotConnected
             except Exception:
                 pass
 
@@ -45,40 +52,37 @@ def get_parrot_zik_mac():
                     res = p.findall(mac)
                     if len(res) > 0:
                         return res[0]
-
+                    else:
+                        raise DeviceNotConnected
                 except EnvironmentError:
                     pass
 
 
-def connect(addr=None):
+def connect():
+    mac = get_parrot_zik_mac()
     if sys.platform == "darwin":
         service_matches = lightblue.findservices(
-            name="Parrot RFcomm service", addr=addr)
+            name="Parrot RFcomm service", addr=mac)
     else:
         uuids = ["0ef0f502-f0ee-46c9-986c-54ed027807fb",
                  "8B6814D3-6CE7-4498-9700-9312C1711F63"]
         service_matches = []
         for uuid in uuids:
-            service_matches = bluetooth.find_service(uuid=uuid, address=addr)
+            service_matches = bluetooth.find_service(uuid=uuid, address=mac)
             if service_matches:
                 break
 
     if len(service_matches) == 0:
-        print "Failed to find Parrot Zik RFCOMM service"
-        return GenericResourceManager(None)
+        raise ConnectionFailure
 
     if sys.platform == "darwin":
         first_match = service_matches[0]
-        port = first_match[1]
-        name = first_match[2]
         host = first_match[0]
+        port = first_match[1]
     else:
         first_match = service_matches[0]
         port = first_match["port"]
-        name = first_match["name"]
         host = first_match["host"]
-
-    print "Connecting to \"%s\" on %s" % (name, host)
 
     if sys.platform == "darwin":
         sock = lightblue.socket()
@@ -90,3 +94,15 @@ def connect(addr=None):
     sock.send('\x00\x03\x00')
     sock.recv(1024)
     return GenericResourceManager(sock)
+
+
+class DeviceNotConnected(Exception):
+    pass
+
+
+class ConnectionFailure(Exception):
+    pass
+
+
+class BluetoothIsNotOn(Exception):
+    pass

@@ -67,22 +67,27 @@ class ParrotZikIndicator(SysIndicator):
             else:
                 self.reconnect.stop()
         else:
-            mac = bluetooth_paired_devices.get_parrot_zik_mac()
-            if mac:
-                self.info_item.set_label("Connecting")
-                resource_manager = connect(mac)
-                if resource_manager.sock:
-                    if resource_manager.api_version.startswith('1'):
-                        self.version_1_interface.activate(resource_manager)
-                    else:
-                        self.version_2_interface.activate(resource_manager)
-                    self.autorefresh(self)
-                    self.autorefresh.start(self, REFRESH_FREQUENCY)
-                    self.reconnect.stop()
-                else:
-                    self.info_item.set_label("Failed to connect")
+            self.info("Trying to connect")
+            try:
+                resource_manager = connect()
+            except bluetooth_paired_devices.BluetoothIsNotOn:
+                self.info("Bluetooth is turned off")
+            except bluetooth_paired_devices.DeviceNotConnected:
+                self.info("Parrot Zik Not connected")
+            except bluetooth_paired_devices.ConnectionFailure:
+                self.info("Failed to connect")
             else:
-                self.info_item.set_label("Parrot Zik Not connected")
+                if resource_manager.api_version.startswith('1'):
+                    self.version_1_interface.activate(resource_manager)
+                else:
+                    self.version_2_interface.activate(resource_manager)
+                self.autorefresh(self)
+                self.autorefresh.start(self, REFRESH_FREQUENCY)
+                self.reconnect.stop()
+
+    def info(self, message):
+        self.info_item.set_label(message)
+        print(message)
 
     @repeat
     def autorefresh(self):
@@ -123,8 +128,7 @@ class ParrotZikBaseInterface(object):
     def activate(self, resource_manager):
         self.parrot = self.parrot_class(resource_manager)
         self.read_battery()
-        self.indicator.info_item.set_label("Connected to: "
-                                           + self.parrot.friendly_name)
+        self.indicator.info("Connected to: " + self.parrot.friendly_name)
         self.firmware_version.set_label(
             "Firmware version: " + self.parrot.version)
         self.auto_connection.set_active(self.parrot.auto_connect)
