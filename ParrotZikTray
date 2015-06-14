@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import functools
+
 import gtk
 
 import BluetoothPairedDevices
@@ -234,7 +236,8 @@ class ParrotZikVersion1Interface(ParrotZikBaseInterface):
 
 class ParrotZikVersion2Interface(ParrotZikBaseInterface):
     def __init__(self, indicator):
-        self.dirty = False
+        self.room_dirty = False
+        self.angle_dirty = False
         super(ParrotZikVersion2Interface, self).__init__(indicator)
         self.noise_cancelation = MenuItem("Noise Cancellation", None, visible=False)
         self.noise_cancelation_submenu = Menu()
@@ -273,13 +276,13 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.rooms.set_submenu(self.rooms_submenu)
 
         self.concert_hall_mode = MenuItem(
-            "Concert Hall", self.toggle_concert_hall_mode, checkitem=True)
+            "Concert Hall", functools.partial(self.toggle_room, Rooms.CONCERT_HALL), checkitem=True)
         self.jazz_mode = MenuItem(
-            "Jazz Club", self.toggle_jazz_club_mode, checkitem=True)
+            "Jazz Club", functools.partial(self.toggle_room, Rooms.JAZZ_CLUB), checkitem=True)
         self.living_mode = MenuItem(
-            "Libing Room", self.toggle_living_room_mode, checkitem=True)
+            "Living Room", functools.partial(self.toggle_room, Rooms.LIVING_ROOM), checkitem=True)
         self.silent_mode = MenuItem(
-            "Silent Room", self.toggle_silent_room_mode, checkitem=True)
+            "Silent Room", functools.partial(self.toggle_room, Rooms.SILENT_ROOM), checkitem=True)
         self.rooms_submenu.append(self.concert_hall_mode)
         self.rooms_submenu.append(self.jazz_mode)
         self.rooms_submenu.append(self.living_mode)
@@ -287,12 +290,18 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
 
         self.angle_submenu = Menu()
         self.angle.set_submenu(self.angle_submenu)
-        self.angle_30 = MenuItem("30", self.toggle_angle_30, checkitem=True)
-        self.angle_60 = MenuItem("60", self.toggle_angle_60, checkitem=True)
-        self.angle_90 = MenuItem("90", self.toggle_angle_90, checkitem=True)
-        self.angle_120 = MenuItem("120", self.toggle_angle_120, checkitem=True)
-        self.angle_150 = MenuItem("150", self.toggle_angle_150, checkitem=True)
-        self.angle_180 = MenuItem("180", self.toggle_angle_180, checkitem=True)
+        self.angle_30 = MenuItem(
+            "30", functools.partial(self.toggle_angle, 30), checkitem=True)
+        self.angle_60 = MenuItem(
+            "60", functools.partial(self.toggle_angle, 60), checkitem=True)
+        self.angle_90 = MenuItem(
+            "90", functools.partial(self.toggle_angle, 90), checkitem=True)
+        self.angle_120 = MenuItem(
+            "120", functools.partial(self.toggle_angle, 120), checkitem=True)
+        self.angle_150 = MenuItem(
+            "150", functools.partial(self.toggle_angle, 150), checkitem=True)
+        self.angle_180 = MenuItem(
+            "180", functools.partial(self.toggle_angle, 180), checkitem=True)
         self.angle_submenu.append(self.angle_30)
         self.angle_submenu.append(self.angle_60)
         self.angle_submenu.append(self.angle_90)
@@ -354,25 +363,13 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
     def toggledummy(self, widget):
         print(widget.get_name())
 
-    def toggle_concert_hall_mode(self, widget):
-        self.toggle_room(Rooms.CONCERT_HALL)
-
-    def toggle_jazz_club_mode(self, widget):
-        self.toggle_room(Rooms.JAZZ_CLUB)
-
-    def toggle_living_room_mode(self, widget):
-        self.toggle_room(Rooms.LIVING_ROOM)
-
-    def toggle_silent_room_mode(self, widget):
-        self.toggle_room(Rooms.SILENT_ROOM)
-
-    def toggle_room(self, room):
+    def toggle_room(self, room, widget):
         if self.connected:
-            if not self.dirty:
+            if not self.room_dirty:
                 self.parrot.room = room
-                self.dirty = True
+                self.room_dirty = True
                 self.read_sound_effect_room()
-                self.dirty = False
+                self.room_dirty = False
         else:
             self.deactivate()
 
@@ -405,31 +402,13 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         else:
             self.deactivate()
 
-    def toggle_angle_30(self, widget):
-        self.toggle_angle(30)
-
-    def toggle_angle_60(self, widget):
-        self.toggle_angle(60)
-
-    def toggle_angle_90(self, widget):
-        self.toggle_angle(90)
-
-    def toggle_angle_120(self, widget):
-        self.toggle_angle(120)
-
-    def toggle_angle_150(self, widget):
-        self.toggle_angle(150)
-
-    def toggle_angle_180(self, widget):
-        self.toggle_angle(180)
-
-    def toggle_angle(self, angle):
+    def toggle_angle(self, angle, widget):
         if self.connected:
-            if not self.dirty:
+            if not self.angle_dirty:
                 self.parrot.angle = angle
-                self.dirty = True
+                self.angle_dirty = True
                 self.read_sound_effect_angle()
-                self.dirty = False
+                self.angle_dirty = False
         else:
             self.deactivate()
 
