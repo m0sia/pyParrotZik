@@ -194,6 +194,17 @@ class ParrotZikBase(object):
 
 
 class ParrotZikVersion1(ParrotZikBase):
+    '''
+    Known resources:
+    * /api/software/version
+    * /api/system/battery
+    * /api/bluetooth/friendlyname
+    * /api/system/auto_connection/enabled
+    * /api/system/anc_phone_mode/enabled
+    * /api/audio/specific_mode/enabled
+    * /api/audio/sound_effect/enabled
+    * /api/audio/noise_cancellation/enabled
+    '''
     @property
     def battery_level(self):
         return int(self.get_battery_level('level'))
@@ -230,6 +241,22 @@ class ParrotZikVersion1(ParrotZikBase):
 
 
 class ParrotZikVersion2(ParrotZikBase):
+    '''
+    Known resources:
+    * /api/software/version
+    * /api/system/battery
+    * /api/system/pi
+    * /api/bluetooth/friendlyname
+    * /api/system/auto_connection/enabled
+    * /api/system/anc_phone_mode/enabled
+    * /api/flight_mode
+    * /api/sound_effect/enabled
+    * /api/sound_effect/room_size
+    * /api/sound_effect/angle
+    * /api/audio/noise
+    * /api/audio/noise_control
+    * /api/audio/noise_control/enabled
+    '''
     @property
     def battery_level(self):
         return self.get_battery_level('percent')
