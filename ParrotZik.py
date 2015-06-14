@@ -1,11 +1,14 @@
 import sys
+
+from resource_manager import GenericResourceManager
+from resource_manager import Version1ResourceManager
+from resource_manager import Version2ResourceManager
+
 if sys.platform == "darwin":
     import lightblue
 else:
     import bluetooth
 
-import ParrotProtocol
-from BeautifulSoup import BeautifulSoup
 
 def connect(addr=None):
     uuids = ["0ef0f502-f0ee-46c9-986c-54ed027807fb",
@@ -23,7 +26,7 @@ def connect(addr=None):
 
     if len(service_matches) == 0:
         print "Failed to find Parrot Zik RFCOMM service"
-        return ParrotZikBase(ParrotZikApi(None))
+        return GenericResourceManager(None)
 
     if sys.platform == "darwin":
         first_match = service_matches[0]
@@ -47,64 +50,9 @@ def connect(addr=None):
 
     sock.send('\x00\x03\x00')
     data = sock.recv(1024)
-    api = ParrotZikApi(sock)
-    if api.version.startswith('1'):
-        return ParrotZikVersion1(api)
-    else:
-        return ParrotZikVersion2(api)
+    return GenericResourceManager(sock)
 
 
-class ParrotZikApi(object):
-    def __init__(self, socket):
-        self.sock = socket
-        self.notifications = []
-
-    @property
-    def version(self):
-        answer = self.get("/api/software/version")
-        try:
-            return answer.software["version"]
-        except KeyError:
-            return answer.software['sip6']
-
-    def get(self, resource):
-        message = ParrotProtocol.getRequest(resource + '/get')
-        return self.send_message(message)
-
-    def toggle_on(self, resource):
-        message = ParrotProtocol.getRequest(resource + '/enable')
-        return self.send_message(message)
-
-    def toggle_off(self, resource):
-        message = ParrotProtocol.getRequest(resource + '/disable')
-        return self.send_message(message)
-
-    def set(self, resource, arg):
-        message = ParrotProtocol.setRequest(resource + '/set', str(arg).lower())
-        return self.send_message(message)
-
-    def send_message(self, message):
-        try:
-            self.sock.send(str(message))
-        except Exception:
-            self.sock = ""
-            return
-        if sys.platform == "darwin":
-            self.sock.recv(30)
-        else:
-            self.sock.recv(7)
-
-        data = BeautifulSoup(self.sock.recv(1024))
-        while not data.answer:
-            if data.notify:
-                self.notifications.append(data.notify)
-            else:
-                raise AssertionError('Unknown response')
-            data = BeautifulSoup(self.sock.recv(1024))
-        return data.answer
-
-    def close(self):
-        self.sock.close()
 
 class BatteryStates:
     CHARGED = 'charged'
@@ -152,40 +100,43 @@ class NoiseControlTypes:
 
 
 class ParrotZikBase(object):
-    def __init__(self, api):
-        self.api = api
+    def __init__(self, resource_manager):
+        self.resource_manager = resource_manager
 
     @property
     def version(self):
-        return self.api.version
+        return self.resource_manager.api_version
+
+    def refresh_battery(self):
+        self.resource_manager.fetch('/api/system/battery')
 
     @property
     def battery_state(self):
-        answer = self.api.get("/api/system/battery")
+        answer = self.resource_manager.get("/api/system/battery")
         return answer.system.battery["state"]
 
     def get_battery_level(self, field_name):
-        answer = self.api.get("/api/system/battery")
+        answer = self.resource_manager.get("/api/system/battery")
         return int(answer.system.battery[field_name])
 
     @property
     def friendly_name(self):
-        answer = self.api.get("/api/bluetooth/friendlyname")
+        answer = self.resource_manager.get("/api/bluetooth/friendlyname")
         return answer.bluetooth["friendlyname"]
 
     @property
     def auto_connect(self):
-        answer = self.api.get("/api/system/auto_connection/enabled")
+        answer = self.resource_manager.get("/api/system/auto_connection/enabled")
         return self._result_to_bool(
             answer.system.auto_connection["enabled"])
 
     @auto_connect.setter
     def auto_connect(self, arg):
-        self.api.set("/api/system/auto_connection/enabled", arg)
+        self.resource_manager.set("/api/system/auto_connection/enabled", arg)
 
     @property
     def anc_phone_mode(self):
-        answer = self.api.get("/api/system/anc_phone_mode/enabled")
+        answer = self.resource_manager.get("/api/system/anc_phone_mode/enabled")
         return self._result_to_bool(
             answer.system.anc_phone_mode["enabled"])
 
@@ -199,125 +150,118 @@ class ParrotZikBase(object):
 
 
 class ParrotZikVersion1(ParrotZikBase):
-    '''
-    Known resources:
-    * /api/software/version
-    * /api/system/battery
-    * /api/bluetooth/friendlyname
-    * /api/system/auto_connection/enabled
-    * /api/system/anc_phone_mode/enabled
-    * /api/audio/specific_mode/enabled
-    * /api/audio/sound_effect/enabled
-    * /api/audio/noise_cancellation/enabled
-    '''
+    def __init__(self, resource_manager):
+        super(ParrotZikVersion1, self).__init__(
+            resource_manager.get_resource_manager(
+                Version1ResourceManager))
+
+    @property
+    def version(self):
+        answer = self.resource_manager.get('/api/software/version')
+        return answer.software['version']
+
     @property
     def battery_level(self):
         return int(self.get_battery_level('level'))
 
     @property
     def lou_reed_mode(self):
-        answer = self.api.get("/api/audio/specific_mode/enabled")
+        answer = self.resource_manager.get("/api/audio/specific_mode/enabled")
         return self._result_to_bool(
             answer.audio.specific_mode["enabled"])
 
     @lou_reed_mode.setter
     def lou_reed_mode(self, arg):
-        self.api.get("/api/audio/specific_mode/enabled", arg)
+        self.resource_manager.get("/api/audio/specific_mode/enabled", arg)
 
     @property
     def concert_hall(self):
-        answer = self.api.get("/api/audio/sound_effect/enabled")
+        answer = self.resource_manager.get("/api/audio/sound_effect/enabled")
         return self._result_to_bool(
             answer.audio.sound_effect["enabled"])
 
     @concert_hall.setter
     def concert_hall(self, arg):
-        self.api.get("/api/audio/sound_effect/enabled", arg)
+        self.resource_manager.get("/api/audio/sound_effect/enabled", arg)
 
     @property
     def cancel_noise(self):
-        answer = self.api.get("/api/audio/noise_cancellation/enabled")
+        answer = self.resource_manager.get("/api/audio/noise_cancellation/enabled")
         return self._result_to_bool(
             answer.audio.noise_cancellation["enabled"])
 
     @cancel_noise.setter
     def cancel_noise(self, arg):
-        self.api.set("/api/audio/noise_cancellation/enabled", arg)
+        self.resource_manager.set("/api/audio/noise_cancellation/enabled", arg)
 
 
 class ParrotZikVersion2(ParrotZikBase):
-    '''
-    Known resources:
-    * /api/software/version
-    * /api/system/battery
-    * /api/system/pi
-    * /api/bluetooth/friendlyname
-    * /api/system/auto_connection/enabled
-    * /api/system/anc_phone_mode/enabled
-    * /api/flight_mode
-    * /api/sound_effect/enabled
-    * /api/sound_effect/room_size
-    * /api/sound_effect/angle
-    * /api/audio/noise
-    * /api/audio/noise_control
-    * /api/audio/noise_control/enabled
-    '''
+    def __init__(self, resource_manager):
+        super(ParrotZikVersion2, self).__init__(
+            resource_manager.get_resource_manager(
+                Version2ResourceManager))
+
+    @property
+    def version(self):
+        answer = self.resource_manager.get('/api/software/version')
+        return answer.software['sip6']
+
     @property
     def battery_level(self):
         return self.get_battery_level('percent')
 
     @property
     def flight_mode(self):
-        answer = self.api.get('/api/flight_mode')
+        answer = self.resource_manager.get('/api/flight_mode')
         return self._result_to_bool(answer.flight_mode['enabled'])
 
     @flight_mode.setter
     def flight_mode(self, arg):
         if arg:
-            self.api.toggle_on('/api/flight_mode')
+            self.resource_manager.toggle_on('/api/flight_mode')
         else:
-            self.api.toggle_off('/api/flight_mode')
+            self.resource_manager.toggle_off('/api/flight_mode')
 
     @property
     def sound_effect(self):
-        answer = self.api.get('/api/audio/sound_effect/enabled')
+        answer = self.resource_manager.get('/api/audio/sound_effect/enabled')
         return self._result_to_bool(answer.audio.sound_effect['enabled'])
 
     @sound_effect.setter
     def sound_effect(self, arg):
-        self.api.set('/api/audio/sound_effect/enabled', arg)
+        self.resource_manager.set('/api/audio/sound_effect/enabled', arg)
 
     @property
     def room(self):
-        answer = self.api.get('/api/audio/sound_effect/room_size')
+        answer = self.resource_manager.get('/api/audio/sound_effect/room_size')
         return answer.audio.sound_effect['room_size']
 
     @room.setter
     def room(self, arg):
-        self.api.set('/api/audio/sound_effect/room_size', arg)
+        self.resource_manager.set('/api/audio/sound_effect/room_size', arg)
 
     @property
     def external_noise(self):
-        answer = self.api.get('/api/audio/noise')
+        answer = self.resource_manager.get('/api/audio/noise')
         return int(answer.audio.noise['external'])
 
     @property
     def internal_noise(self):
-        answer = self.api.get('/api/audio/noise')
+        answer = self.resource_manager.get('/api/audio/noise')
         return int(answer.audio.noise['internal'])
 
     @property
     def angle(self):
-        answer = self.api.get('/api/audio/sound_effect/angle')
+        answer = self.resource_manager.get('/api/audio/sound_effect/angle')
         return int(answer.audio.sound_effect['angle'])
 
     @angle.setter
     def angle(self, arg):
-        self.api.set('/api/audio/sound_effect/angle', arg)
+        self.resource_manager.set('/api/audio/sound_effect/angle', arg)
 
     @property
     def noise_control(self):
-        answer = self.api.get('/api/audio/noise_control')
+        answer = self.resource_manager.get('/api/audio/noise_control')
         return NoiseControl.from_noise_control(answer.audio.noise_control)
 
     @noise_control.setter
@@ -326,5 +270,5 @@ class ParrotZikVersion2(ParrotZikBase):
 
     @property
     def noise_control_enabled(self):
-        answer = self.api.get('/api/audio/noise_control/enabled')
+        answer = self.resource_manager.get('/api/audio/noise_control/enabled')
         return self._result_to_bool(answer.audio.noise_control['enabled'])

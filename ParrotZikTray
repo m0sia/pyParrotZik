@@ -5,6 +5,8 @@ import gtk
 
 import BluetoothPairedDevices
 from ParrotZik import BatteryStates
+from ParrotZik import ParrotZikVersion1
+from ParrotZik import ParrotZikVersion2
 from ParrotZik import NoiseControlTypes
 from ParrotZik import connect
 from ParrotZik import Rooms
@@ -68,12 +70,12 @@ class ParrotZikIndicator(SysIndicator):
             mac = BluetoothPairedDevices.ParrotZikMac()
             if mac:
                 self.info_item.set_label("Connecting")
-                parrot = connect(mac)
-                if parrot.api.sock:
-                    if parrot.version.startswith('1'):
-                        self.version_1_interface.activate(parrot)
+                resource_manager = connect(mac)
+                if resource_manager.sock:
+                    if resource_manager.api_version.startswith('1'):
+                        self.version_1_interface.activate(resource_manager)
                     else:
-                        self.version_2_interface.activate(parrot)
+                        self.version_2_interface.activate(resource_manager)
                     self.autorefresh(self)
                     self.autorefresh.start(self, REFRESH_FREQUENCY)
                     self.reconnect.stop()
@@ -114,12 +116,12 @@ class ParrotZikBaseInterface(object):
     @property
     def connected(self):
         if self.parrot:
-            return self.parrot.api.sock
+            return self.parrot.resource_manager.sock
         else:
             return False
 
-    def activate(self, parrot):
-        self.parrot = parrot
+    def activate(self, resource_manager):
+        self.parrot = self.parrot_class(resource_manager)
         self.read_battery()
         self.indicator.info_item.set_label("Connected to: "
                                            + self.parrot.friendly_name)
@@ -133,6 +135,10 @@ class ParrotZikBaseInterface(object):
         self.auto_connection.show()
         self.indicator.active_interface = self
         self.indicator.menu.reposition()
+
+    @property
+    def parrot_class(self):
+        raise NotImplementedError
 
     def deactivate(self):
         self.parrot = None
@@ -157,9 +163,9 @@ class ParrotZikBaseInterface(object):
 
     def read_battery(self):
         if self.connected:
+            self.parrot.refresh_battery()
             battery_level = self.parrot.battery_level
             battery_state = self.parrot.battery_state
-
             if battery_state == BatteryStates.CHARGING:
                 self.indicator.setIcon("zik-battery-charging")
             elif battery_level > 80:
@@ -182,6 +188,8 @@ class ParrotZikBaseInterface(object):
 
 
 class ParrotZikVersion1Interface(ParrotZikBaseInterface):
+    parrot_class = ParrotZikVersion1
+
     def __init__(self, indicator):
         super(ParrotZikVersion1Interface, self).__init__(indicator)
         self.noise_cancelation = MenuItem(
@@ -196,11 +204,11 @@ class ParrotZikVersion1Interface(ParrotZikBaseInterface):
         self.indicator.menu.append(self.lou_reed_mode)
         self.indicator.menu.append(self.concert_hall_mode)
 
-    def activate(self, parrot):
+    def activate(self, resource_manager):
         self.noise_cancelation.show()
         self.lou_reed_mode.show()
         self.concert_hall_mode.show()
-        super(ParrotZikVersion1Interface, self).activate(parrot)
+        super(ParrotZikVersion1Interface, self).activate(resource_manager)
 
         self.noise_cancelation.set_active(self.parrot.cancel_noise)
         self.lou_reed_mode.set_active(self.parrot.lou_reed_mode)
@@ -238,6 +246,8 @@ class ParrotZikVersion1Interface(ParrotZikBaseInterface):
 
 
 class ParrotZikVersion2Interface(ParrotZikBaseInterface):
+    parrot_class = ParrotZikVersion2
+
     def __init__(self, indicator):
         self.room_dirty = False
         self.angle_dirty = False
@@ -329,11 +339,11 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.indicator.menu.append(self.noise_cancelation)
         self.indicator.menu.append(self.flight_mode)
 
-    def activate(self, parrot):
+    def activate(self, resource_manager):
         self.noise_cancelation.show()
         self.flight_mode.show()
         self.room_sound_effect.show()
-        super(ParrotZikVersion2Interface, self).activate(parrot)
+        super(ParrotZikVersion2Interface, self).activate(resource_manager)
         self.read_noise_cancelation()
         self.flight_mode.set_active(self.parrot.flight_mode)
         self.read_sound_effect_room()
