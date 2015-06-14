@@ -161,7 +161,7 @@ class ParrotZikBase(object):
 
     def get_battery_level(self, field_name):
         data = self.api.get("/api/system/battery")
-        return data.answer.system.battery[field_name]
+        return int(data.answer.system.battery[field_name])
 
     @property
     def friendly_name(self):
