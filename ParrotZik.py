@@ -165,28 +165,12 @@ class ParrotZikBase(object):
     @property
     def noise_cancel(self):
         data = self.api.get("/api/audio/noise_cancellation/enabled")
-        try:
-            return self._result_to_bool(
-                data.answer.audio.noise_cancellation["enabled"])
-        except AttributeError:
-            return False
+        return self._result_to_bool(
+            data.answer.audio.noise_cancellation["enabled"])
 
     @noise_cancel.setter
     def noise_cancel(self, arg):
-        self.api.get("/api/audio/noise_cancellation/enabled", arg)
-
-    @property
-    def concert_hall(self):
-        data = self.api.get("/api/audio/sound_effect/enabled")
-        try:
-            return self._result_to_bool(
-                data.answer.audio.sound_effect["enabled"])
-        except AttributeError:
-            return False
-
-    @concert_hall.setter
-    def concert_hall(self, arg):
-        self.api.get("/api/audio/sound_effect/enabled", arg)
+        self.api.set("/api/audio/noise_cancellation/enabled", arg)
 
     def _result_to_bool(self, result):
         if result == "true":
@@ -211,6 +195,16 @@ class ParrotZikVersion1(ParrotZikBase):
     @lou_reed_mode.setter
     def lou_reed_mode(self, arg):
         self.api.get("/api/audio/specific_mode/enabled", arg)
+
+    @property
+    def concert_hall(self):
+        data = self.api.get("/api/audio/sound_effect/enabled")
+        return self._result_to_bool(
+            data.answer.audio.sound_effect["enabled"])
+
+    @concert_hall.setter
+    def concert_hall(self, arg):
+        self.api.get("/api/audio/sound_effect/enabled", arg)
 
 
 class ParrotZikVersion2(ParrotZikBase):
