@@ -68,7 +68,10 @@ def connect():
                  "8B6814D3-6CE7-4498-9700-9312C1711F63"]
         service_matches = []
         for uuid in uuids:
-            service_matches = bluetooth.find_service(uuid=uuid, address=mac)
+            try:
+                service_matches = bluetooth.find_service(uuid=uuid, address=mac)
+            except bluetooth.btcommon.BluetoothError:
+                pass
             if service_matches:
                 break
 
@@ -79,14 +82,11 @@ def connect():
         first_match = service_matches[0]
         host = first_match[0]
         port = first_match[1]
+        sock = lightblue.socket()
     else:
         first_match = service_matches[0]
         port = first_match["port"]
         host = first_match["host"]
-
-    if sys.platform == "darwin":
-        sock = lightblue.socket()
-    else:
         sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 
     sock.connect((host, port))
