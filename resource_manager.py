@@ -18,33 +18,30 @@ class ResourceManagerBase(object):
             return self.fetch(resource)
 
     def fetch(self, resource):
-        assert resource in self.resources, 'Unknown resource {}'.format(resource)
-        assert 'get' in self.resources[resource], 'Unhandled method'
-        message = ParrotProtocol.getRequest(resource + '/get')
-        result = self.send_message(message)
+        result = self.send_message(self._create_message(resource, 'get'))
         self.resource_values[resource] = result
         return result
 
     def toggle_on(self, resource):
-        assert resource in self.resources, 'Unknown resource {}'.format(resource)
-        assert 'enable' in self.resources[resource], 'Unhandled method'
-        message = ParrotProtocol.getRequest(resource + '/enable')
-        self.send_message(message)
+        self.send_message(self._create_message(resource, 'enable'))
         self.fetch(resource)
 
     def toggle_off(self, resource):
-        assert resource in self.resources, 'Unknown resource {}'.format(resource)
-        assert 'disable' in self.resources[resource], 'Unhandled method'
-        message = ParrotProtocol.getRequest(resource + '/disable')
-        self.send_message(message)
+        self.send_message(self._create_message(resource, 'disable'))
         self.fetch(resource)
 
     def set(self, resource, arg):
-        assert resource in self.resources, 'Unknown resource {}'.format(resource)
-        assert 'set' in self.resources[resource], 'Unhandled method'
-        message = ParrotProtocol.setRequest(resource + '/set', str(arg).lower())
-        self.send_message(message)
+        self.send_message(self._create_message(resource, 'set', arg))
         self.fetch(resource)
+
+    def _create_message(self, resource, method, arg=None):
+        assert resource in self.resources, 'Unknown resource {}'.format(resource)
+        assert method in self.resources[resource], 'Unhandled method {} for {}'.format(
+            method, resource)
+        if method == 'set':
+            return ParrotProtocol.setRequest(resource + '/' + method, str(arg).lower())
+        else:
+            return ParrotProtocol.getRequest(resource + '/' + method)
 
     def send_message(self, message):
         try:
