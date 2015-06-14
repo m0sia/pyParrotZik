@@ -63,8 +63,10 @@ class ResourceManagerBase(object):
         return data.answer
 
     def handle_notification(self, notification):
+        self.fetch(self._clean_path(notification['path']))
 
-        self.fetch(notification['path'].rsplit('/', 1)[0].encode('utf-8'))
+    def _clean_path(self, path):
+        return path.rsplit('/', 1)[0].encode('utf-8')
 
     def receive_message(self):
         if sys.platform == "darwin":
