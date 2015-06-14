@@ -338,8 +338,8 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
 
     def toggleANC(self, widget):
         if self.connected:
-            self.parrot.noise_cancel = self.noise_cancelation.get_active()
-            self.noise_cancelation.set_active(self.parrot.noise_cancel)
+            self.parrot.noise_cancel = self.noise_cancelation_enabled.get_active()
+            self.noise_cancelation_enabled.set_active(self.parrot.noise_cancel)
         else:
             self.deactivate()
 
