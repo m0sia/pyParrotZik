@@ -5,6 +5,7 @@ import gtk
 
 import BluetoothPairedDevices
 from ParrotZik import BatteryStates
+from ParrotZik import NoiseControlTypes
 from ParrotZik import connect
 from ParrotZik import Rooms
 from SysIndicator import MenuItem
@@ -238,26 +239,37 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
     def __init__(self, indicator):
         self.room_dirty = False
         self.angle_dirty = False
+        self.noise_cancelation_dirty = False
         super(ParrotZikVersion2Interface, self).__init__(indicator)
-        self.noise_cancelation = MenuItem("Noise Cancellation", None, visible=False)
+        self.noise_cancelation = MenuItem("Noise Control", None, visible=False)
         self.noise_cancelation_submenu = Menu()
         self.noise_cancelation.set_submenu(self.noise_cancelation_submenu)
 
-        self.noise_cancelation_enabled = MenuItem(
-            "Enabled", self.toggle_noise_cancelation, checkitem=True)
-        self.noise_cancelation_mode0 = MenuItem(
-            "Mode0", self.toggledummy, checkitem=True)
-        self.noise_cancelation_mode1 = MenuItem(
-            "Mode1", self.toggledummy, checkitem=True)
-        self.noise_cancelation_mode2 = MenuItem(
-            "Mode2", self.toggledummy, checkitem=True)
-        self.noise_cancelation_mode3 = MenuItem(
-            "Mode3", self.toggledummy, checkitem=True)
-        self.noise_cancelation_submenu.append(self.noise_cancelation_enabled)
-        self.noise_cancelation_submenu.append(self.noise_cancelation_mode0)
-        self.noise_cancelation_submenu.append(self.noise_cancelation_mode1)
-        self.noise_cancelation_submenu.append(self.noise_cancelation_mode2)
-        self.noise_cancelation_submenu.append(self.noise_cancelation_mode3)
+        self.noise_control_cancelation_max = MenuItem(
+            "Max Calcelation", functools.partial(
+                self.toggle_noise_cancelation,
+                NoiseControlTypes.NOISE_CONTROL_MAX), checkitem=True)
+        self.noise_control_cancelation_on = MenuItem(
+            "Normal Cancelation", functools.partial(
+                self.toggle_noise_cancelation,
+                NoiseControlTypes.NOISE_CONTROL_ON), checkitem=True)
+        self.noise_control_off = MenuItem(
+            "Off", functools.partial(
+                self.toggle_noise_cancelation,
+                NoiseControlTypes.NOISE_CONTROL_OFF), checkitem=True)
+        self.noise_control_street_mode = MenuItem(
+            "Street Mode", functools.partial(
+                self.toggle_noise_cancelation,
+                NoiseControlTypes.STREET_MODE), checkitem=True)
+        self.noise_control_street_mode_max = MenuItem(
+            "Street Mode Max", functools.partial(
+                self.toggle_noise_cancelation,
+                NoiseControlTypes.STREET_MODE_MAX), checkitem=True)
+        self.noise_cancelation_submenu.append(self.noise_control_cancelation_max)
+        self.noise_cancelation_submenu.append(self.noise_control_cancelation_on)
+        self.noise_cancelation_submenu.append(self.noise_control_off)
+        self.noise_cancelation_submenu.append(self.noise_control_street_mode)
+        self.noise_cancelation_submenu.append(self.noise_control_street_mode_max)
 
         self.room_sound_effect = MenuItem(
             "Room Sound Effect", None, visible=False)
@@ -320,7 +332,7 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.flight_mode.show()
         self.room_sound_effect.show()
         super(ParrotZikVersion2Interface, self).activate(parrot)
-        self.noise_cancelation_enabled.set_active(self.parrot.cancel_noise)
+        self.read_noise_cancelation()
         self.flight_mode.set_active(self.parrot.flight_mode)
         self.read_sound_effect_room()
         self.read_sound_effect_angle()
@@ -345,13 +357,6 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.flight_mode.hide()
         self.room_sound_effect.hide()
         super(ParrotZikVersion2Interface, self).deactivate()
-
-    def toggle_noise_cancelation(self, widget):
-        if self.connected:
-            self.parrot.cancel_noise = self.noise_cancelation_enabled.get_active()
-            self.noise_cancelation_enabled.set_active(self.parrot.cancel_noise)
-        else:
-            self.deactivate()
 
     def toggle_flight_mode(self, widget):
         if self.connected:
@@ -424,6 +429,28 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         )
         for angle, menu_item in angle_to_menuitem_map:
             menu_item.set_active(angle == active_angle)
+
+    def toggle_noise_cancelation(self, noise_calcelation, widget):
+        if self.connected:
+            if not self.noise_cancelation_dirty:
+                self.parrot.noise_control = noise_calcelation
+                self.noise_cancelation_dirty = True
+                self.read_noise_cancelation()
+                self.noise_cancelation_dirty = False
+        else:
+            self.deactivate()
+
+    def read_noise_cancelation(self):
+        active_noise_control = self.parrot.noise_control
+        noise_control_to_menuitem_map = (
+            (NoiseControlTypes.NOISE_CONTROL_MAX, self.noise_control_cancelation_max),
+            (NoiseControlTypes.NOISE_CONTROL_ON, self.noise_control_cancelation_on),
+            (NoiseControlTypes.NOISE_CONTROL_OFF, self.noise_control_off),
+            (NoiseControlTypes.STREET_MODE, self.noise_control_street_mode),
+            (NoiseControlTypes.STREET_MODE_MAX, self.noise_control_street_mode_max),
+        )
+        for noise_control, menu_item in noise_control_to_menuitem_map:
+            menu_item.set_active(active_noise_control == noise_control)
 
 
 if __name__ == "__main__":

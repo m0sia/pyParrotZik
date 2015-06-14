@@ -123,6 +123,28 @@ class Rooms:
         SILENT_ROOM: 'Silent Room',
     }
 
+class NoiseControl(object):
+    def __init__(self, type, value):
+        self.type = type
+        self.value = value
+
+    @classmethod
+    def from_noise_control(cls, noise_control):
+        return cls(noise_control['type'], int(noise_control['value']))
+
+    def __eq__(self, other):
+        return self.type == other.type and self.value == other.value
+
+    def __str__(self):
+        return '{}++{}'.format(self.type, self.value)
+
+class NoiseControlTypes:
+    NOISE_CONTROL_MAX = NoiseControl('anc', 2)
+    NOISE_CONTROL_ON = NoiseControl('anc', 1)
+    NOISE_CONTROL_OFF = NoiseControl('off', 1)
+    STREET_MODE = NoiseControl('aoc', 1)
+    STREET_MODE_MAX = NoiseControl('aoc', 2)
+
 
 class ParrotZikBase(object):
     def __init__(self, api):
@@ -162,16 +184,6 @@ class ParrotZikBase(object):
         return self._result_to_bool(
             data.answer.system.anc_phone_mode["enabled"])
 
-    @property
-    def cancel_noise(self):
-        data = self.api.get("/api/audio/noise_cancellation/enabled")
-        return self._result_to_bool(
-            data.answer.audio.noise_cancellation["enabled"])
-
-    @cancel_noise.setter
-    def cancel_noise(self, arg):
-        self.api.set("/api/audio/noise_cancellation/enabled", arg)
-
     def _result_to_bool(self, result):
         if result == "true":
             return True
@@ -205,6 +217,16 @@ class ParrotZikVersion1(ParrotZikBase):
     @concert_hall.setter
     def concert_hall(self, arg):
         self.api.get("/api/audio/sound_effect/enabled", arg)
+
+    @property
+    def cancel_noise(self):
+        data = self.api.get("/api/audio/noise_cancellation/enabled")
+        return self._result_to_bool(
+            data.answer.audio.noise_cancellation["enabled"])
+
+    @cancel_noise.setter
+    def cancel_noise(self, arg):
+        self.api.set("/api/audio/noise_cancellation/enabled", arg)
 
 
 class ParrotZikVersion2(ParrotZikBase):
@@ -264,11 +286,11 @@ class ParrotZikVersion2(ParrotZikBase):
     @property
     def noise_control(self):
         data = self.api.get('/api/audio/noise_control')
-        return self._result_to_bool(data.answer.audio.noise_control['value'])
+        return NoiseControl.from_noise_control(data.answer.audio.noise_control)
 
     @noise_control.setter
     def noise_control(self, arg):
-        self.api.set('/api/audio/noise_control', arg)
+        pass
 
     @property
     def noise_control_enabled(self):
