@@ -77,14 +77,13 @@ def connect():
 
     if len(service_matches) == 0:
         raise ConnectionFailure
+    first_match = service_matches[0]
 
     if sys.platform == "darwin":
-        first_match = service_matches[0]
         host = first_match[0]
         port = first_match[1]
         sock = lightblue.socket()
     else:
-        first_match = service_matches[0]
         port = first_match["port"]
         host = first_match["host"]
         sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
