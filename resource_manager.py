@@ -1,3 +1,4 @@
+from operator import itemgetter
 import sys
 from BeautifulSoup import BeautifulSoup
 import ParrotProtocol
@@ -61,12 +62,14 @@ class ResourceManagerBase(object):
             else:
                 raise AssertionError('Unknown response')
             data = self.receive_message()
-        for notification in notifications:
-            self.handle_notification(notification)
+        self.handle_notifications(notifications)
         return data.answer
 
-    def handle_notification(self, notification):
-        self.fetch(self._clean_path(notification['path']))
+    def handle_notifications(self, notifications):
+        paths = map(itemgetter('path'), notifications)
+        clean_paths = set(map(self._clean_path, paths))
+        for path in clean_paths:
+            self.fetch(path)
 
     def _clean_path(self, path):
         return path.rsplit('/', 1)[0].encode('utf-8')
@@ -96,8 +99,7 @@ class GenericResourceManager(ResourceManagerBase):
 
     def get_resource_manager(self, resource_manager_class):
         resource_manager = resource_manager_class(self.sock, self.resource_values)
-        for notitifaction in self.notifications:
-            resource_manager.handle_notification(notitifaction)
+        resource_manager.handle_notifications(self.notifications)
         return resource_manager
 
     @property
