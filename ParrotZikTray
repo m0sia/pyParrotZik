@@ -243,16 +243,16 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.noise_cancelation_submenu = Menu()
         self.noise_cancelation.set_submenu(self.noise_cancelation_submenu)
 
-        self.noise_cancelation_enabled = MenuItem("Enabled", self.toggle_noise_cancelation,
-                                                  checkitem=True)
-        self.noise_cancelation_mode0 = MenuItem("Mode0", self.toggledummy,
-                                                checkitem=True)
-        self.noise_cancelation_mode1 = MenuItem("Mode1", self.toggledummy,
-                                                checkitem=True)
-        self.noise_cancelation_mode2 = MenuItem("Mode2", self.toggledummy,
-                                                checkitem=True)
-        self.noise_cancelation_mode3 = MenuItem("Mode3", self.toggledummy,
-                                                checkitem=True)
+        self.noise_cancelation_enabled = MenuItem(
+            "Enabled", self.toggle_noise_cancelation, checkitem=True)
+        self.noise_cancelation_mode0 = MenuItem(
+            "Mode0", self.toggledummy, checkitem=True)
+        self.noise_cancelation_mode1 = MenuItem(
+            "Mode1", self.toggledummy, checkitem=True)
+        self.noise_cancelation_mode2 = MenuItem(
+            "Mode2", self.toggledummy, checkitem=True)
+        self.noise_cancelation_mode3 = MenuItem(
+            "Mode3", self.toggledummy, checkitem=True)
         self.noise_cancelation_submenu.append(self.noise_cancelation_enabled)
         self.noise_cancelation_submenu.append(self.noise_cancelation_mode0)
         self.noise_cancelation_submenu.append(self.noise_cancelation_mode1)
