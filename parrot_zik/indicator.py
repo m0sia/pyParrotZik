@@ -41,7 +41,7 @@ class BaseIndicator(object):
 class WindowsIndicator(BaseIndicator):
     def __init__(self, icon, menu):
         self.icon_directory = os.path.join(
-            os.path.dirname(os.path.realpath(sys.argv[0])), '..', 'share', 'icons', 'zik')
+            os.path.dirname(os.path.realpath(sys.argv[0])), 'share', 'icons', 'zik')
         self.menu_shown = False
         sys.stdout = open(os.path.join(tempfile.gettempdir(), "zik_tray_stdout.log", "w"))
         sys.stderr = open(os.path.join(tempfile.gettempdir(), "zik_tray_stderr.log", "w"))
@@ -71,7 +71,7 @@ class LinuxIndicator(BaseIndicator):
         import appindicator
         self.icon_directory = os.path.join('/', 'usr', 'share', 'icons', 'zik')
         if not os.path.isdir(self.icon_directory):
-            self.icon_directory = os.path.join(os.path.dirname(sys.argv[0]), '..', 'share', 'icons', 'zik')
+            self.icon_directory = os.path.join('share', 'icons', 'zik')
         statusicon = appindicator.Indicator(
             "new-parrotzik-indicator", "indicator-messages",
             appindicator.CATEGORY_APPLICATION_STATUS)
@@ -99,7 +99,7 @@ class LinuxIndicator(BaseIndicator):
 class DarwinIndicator(BaseIndicator):
     def __init__(self, icon, menu):
         self.icon_directory = os.path.join(
-            os.path.dirname(os.path.realpath(sys.argv[0])), '..', 'share', 'icons', 'zik')
+            os.path.dirname(os.path.realpath(sys.argv[0])), 'share', 'icons', 'zik')
         statusicon = StatusApp.sharedApplication()
         statusicon.initMenu(menu)
         super(DarwinIndicator, self).__init__(icon, menu, statusicon)

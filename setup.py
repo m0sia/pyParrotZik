@@ -44,5 +44,6 @@ setup(
     ],
 
     packages=['parrot_zik'],
-    scripts=["parrot_zik/parrot_zik_tray"]
+    scripts=["parrot_zik/parrot_zik_tray"],
+    include_package_data=True,
 )
