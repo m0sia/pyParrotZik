@@ -80,6 +80,15 @@ class ParrotZikVersion2(ParrotZikBase):
         answer = self.resource_manager.get('/api/audio/noise_control/enabled')
         return self._result_to_bool(answer.audio.noise_control['enabled'])
 
+    @property
+    def head_detection(self):
+        answer = self.resource_manager.get('/api/system/head_detection/enabled')
+        return self._result_to_bool(answer.system.head_detection['enabled'])
+
+    @head_detection.setter
+    def head_detection(self, arg):
+        self.resource_manager.set('/api/system/head_detection/enabled', arg)
+
 
 class NoiseControl(object):
     def __init__(self, type, value):
