@@ -27,6 +27,9 @@ class DarwinIndicator(BaseIndicator):
     def show_about_dialog(self, widget):
         pass
 
+    def quit(self, _):
+        pass
+
 
 class NSMenu(object):
     def __init__(self):

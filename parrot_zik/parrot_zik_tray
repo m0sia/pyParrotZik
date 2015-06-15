@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import gtk
 
 from parrot_zik.interface.version1 import ParrotZikVersion1Interface
 from parrot_zik.interface.version2 import ParrotZikVersion2Interface
@@ -26,8 +25,8 @@ class ParrotZikIndicator(SysIndicator):
 
         self.version_1_interface = ParrotZikVersion1Interface(self)
         self.version_2_interface = ParrotZikVersion2Interface(self)
-        self.quit = MenuItem("Quit", gtk.main_quit, checkitem=True)
-        self.menu.append(self.quit)
+        self.quit_item = MenuItem("Quit", self.quit, checkitem=True)
+        self.menu.append(self.quit_item)
 
         SysIndicator.__init__(self, icon="zik-audio-headset", menu=self.menu)
 

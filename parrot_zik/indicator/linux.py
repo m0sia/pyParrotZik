@@ -34,6 +34,9 @@ class LinuxIndicator(BaseIndicator):
     def main(self):
         gtk.main()
 
+    def quit(self, _):
+        gtk.main_quit()
+
     def show_about_dialog(self, widget):
         about_dialog = gtk.AboutDialog()
         about_dialog.set_destroy_with_parent(True)

@@ -13,6 +13,9 @@ class BaseIndicator(object):
     def show_about_dialog(self, widget):
         raise NotImplementedError
 
+    def quit(self, _):
+        raise NotImplementedError
+
 class MenuItemBase(object):
     def __init__(self, base_item, sensitive, visible):
         self.base_item = base_item
