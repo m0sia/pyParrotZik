@@ -43,7 +43,7 @@ setup(
         'BeautifulSoup', 'pybluez'
     ],
 
-    packages=['parrot_zik'],
+    packages=['parrot_zik', 'parrot_zik.interface'],
     scripts=["parrot_zik/parrot_zik_tray"],
     include_package_data=True,
 )
