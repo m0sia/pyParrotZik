@@ -1,3 +1,4 @@
+import dbus
 import sys
 import re
 import os
@@ -17,16 +18,24 @@ def get_parrot_zik_mac():
         p = re.compile('90:03:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}|'
                        'A0:14:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}')
         if sys.platform == "linux2":
-            bluetooth_on = int(os.popen('bluez-test-adapter powered').read())
-            if bluetooth_on == 1:
-                out = os.popen("bluez-test-device list").read()
-                res = p.findall(out)
-                if len(res) > 0:
-                    return res[0]
-                else:
-                    raise DeviceNotConnected
+            try:
+                bluetooth_on = int(os.popen('bluez-test-adapter powered').read())
+            except dbus.exceptions.DBusException:
+                pass
             else:
-                raise BluetoothIsNotOn
+                if bluetooth_on == 1:
+                    try:
+                        out = os.popen("bluez-test-device list").read()
+                    except dbus.exceptions.DBusException:
+                        pass
+                    else:
+                        res = p.findall(out)
+                        if len(res) > 0:
+                            return res[0]
+                        else:
+                            raise DeviceNotConnected
+                else:
+                    raise BluetoothIsNotOn
         elif sys.platform == "darwin":
             fd = open("/Library/Preferences/com.apple.Bluetooth.plist", "rb")
             plist = binplist.BinaryPlist(file_obj=fd)
