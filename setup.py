@@ -40,7 +40,7 @@ setup(
     ],
 
     install_requires=[
-        'BeautifulSoup', 'bluetooth'
+        'BeautifulSoup', 'pybluez'
     ],
 
     packages=['parrot_zik'],
