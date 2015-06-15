@@ -125,3 +125,7 @@ class Rooms:
         LIVING_ROOM: 'Living Room',
         SILENT_ROOM: 'Silent Room',
     }
+
+class SoundSource:
+    LINE_IN = 'line-in'
+    A2DP = 'a2dp'
