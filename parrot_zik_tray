@@ -265,23 +265,23 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.noise_control_cancelation_max = MenuItem(
             "Max Calcelation", functools.partial(
                 self.toggle_noise_cancelation,
-                NoiseControlTypes.NOISE_CONTROL_MAX), checkitem=True)
+                NoiseControlTypes.NOISE_CONTROL_MAX), checkitem=True, sensitive=False)
         self.noise_control_cancelation_on = MenuItem(
             "Normal Cancelation", functools.partial(
                 self.toggle_noise_cancelation,
-                NoiseControlTypes.NOISE_CONTROL_ON), checkitem=True)
+                NoiseControlTypes.NOISE_CONTROL_ON), checkitem=True, sensitive=False)
         self.noise_control_off = MenuItem(
             "Off", functools.partial(
                 self.toggle_noise_cancelation,
-                NoiseControlTypes.NOISE_CONTROL_OFF), checkitem=True)
+                NoiseControlTypes.NOISE_CONTROL_OFF), checkitem=True, sensitive=False)
         self.noise_control_street_mode = MenuItem(
             "Street Mode", functools.partial(
                 self.toggle_noise_cancelation,
-                NoiseControlTypes.STREET_MODE), checkitem=True)
+                NoiseControlTypes.STREET_MODE), checkitem=True, sensitive=False)
         self.noise_control_street_mode_max = MenuItem(
             "Street Mode Max", functools.partial(
                 self.toggle_noise_cancelation,
-                NoiseControlTypes.STREET_MODE_MAX), checkitem=True)
+                NoiseControlTypes.STREET_MODE_MAX), checkitem=True, sensitive=False)
         self.noise_cancelation_submenu.append(self.noise_control_cancelation_max)
         self.noise_cancelation_submenu.append(self.noise_control_cancelation_on)
         self.noise_cancelation_submenu.append(self.noise_control_off)
