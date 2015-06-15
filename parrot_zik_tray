@@ -370,7 +370,6 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
 
     def deactivate(self):
         self.noise_cancelation.hide()
-        self.concert_hall_mode.hide()
         self.flight_mode.hide()
         self.room_sound_effect.hide()
         super(ParrotZikVersion2Interface, self).deactivate()
