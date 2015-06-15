@@ -1,3 +1,4 @@
+import functools
 from threading import Lock
 
 import gtk
@@ -15,10 +16,10 @@ class repeat(object):
     def start(self, cls, frequency):
         self.lock.acquire()
         if not self.id:
+            @functools.wraps(self.f)
             def run():
                 self.f(cls)
                 return True
-
             self.id = gtk.timeout_add(frequency, run)
         self.lock.release()
 
