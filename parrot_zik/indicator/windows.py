@@ -30,7 +30,8 @@ class WindowsIndicator(BaseIndicator):
     def setIcon(self, name):
         self.statusicon.set_from_file(self.icon_directory + name + '.png')
 
-    def main(self):
+    @classmethod
+    def main(cls):
         gtk.main()
 
     def quit(self, _):

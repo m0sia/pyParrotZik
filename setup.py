@@ -44,6 +44,10 @@ setup(
     ],
 
     packages=['parrot_zik', 'parrot_zik.interface', 'parrot_zik.indicator'],
-    scripts=["parrot_zik/parrot_zik_tray"],
+    entry_points={
+        'console_scripts': [
+            'parrot_zik_tray=parrot_zik.parrot_zik_tray:ParrotZikIndicator.main',
+        ]
+    },
     include_package_data=True,
 )

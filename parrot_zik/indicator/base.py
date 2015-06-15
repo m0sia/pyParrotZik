@@ -7,7 +7,8 @@ class BaseIndicator(object):
     def setIcon(self, name):
         raise NotImplementedError
 
-    def main(self):
+    @classmethod
+    def main(cls):
         raise NotImplementedError
 
     def show_about_dialog(self, widget):

@@ -31,7 +31,8 @@ class LinuxIndicator(BaseIndicator):
     def setIcon(self, name):
         self.statusicon.set_icon(name)
 
-    def main(self):
+    @classmethod
+    def main(cls):
         gtk.main()
 
     def quit(self, _):

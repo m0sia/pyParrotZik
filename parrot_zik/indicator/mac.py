@@ -21,7 +21,8 @@ class DarwinIndicator(BaseIndicator):
     def setIcon(self, name):
         self.statusicon.setIcon(name, self.icon_directory)
 
-    def main(self):
+    @classmethod
+    def main(cls):
         AppHelper.runEventLoop()
 
     def show_about_dialog(self, widget):

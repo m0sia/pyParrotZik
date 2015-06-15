@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from parrot_zik.interface.version1 import ParrotZikVersion1Interface
 from parrot_zik.interface.version2 import ParrotZikVersion2Interface
 from parrot_zik import resource_manager
@@ -72,14 +70,11 @@ class ParrotZikIndicator(SysIndicator):
             self.reconnect.start(self, RECONNECT_FREQUENCY)
             self.autorefresh.stop()
 
-    def main(self):
-        self.reconnect.start(self, RECONNECT_FREQUENCY)
-        SysIndicator.main(self)
-
-
-if __name__ == "__main__":
-    try:
-        indicator = ParrotZikIndicator()
-        indicator.main()
-    except KeyboardInterrupt:
-        pass
+    @classmethod
+    def main(cls):
+        try:
+            indicator = cls()
+            cls.reconnect.start(indicator, RECONNECT_FREQUENCY)
+            super(ParrotZikIndicator, cls).main()
+        except KeyboardInterrupt:
+            pass
