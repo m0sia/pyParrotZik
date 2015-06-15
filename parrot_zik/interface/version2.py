@@ -107,9 +107,6 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.indicator.menu.append(self.flight_mode)
 
     def activate(self, manager):
-        self.noise_cancelation.show()
-        self.flight_mode.show()
-        self.room_sound_effect.show()
         super(ParrotZikVersion2Interface, self).activate(manager)
         self._read_noise_cancelation()
         self.flight_mode.set_active(self.parrot.flight_mode)
@@ -129,6 +126,11 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.angle_120.set_sensitive(sound_effect)
         self.angle_150.set_sensitive(sound_effect)
         self.angle_180.set_sensitive(sound_effect)
+
+        self.noise_cancelation.show()
+        self.flight_mode.show()
+        self.room_sound_effect.show()
+        self.indicator.menu.reposition()
 
     def deactivate(self):
         self.noise_cancelation.hide()

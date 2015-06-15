@@ -22,13 +22,15 @@ class ParrotZikVersion1Interface(ParrotZikBaseInterface):
         self.indicator.menu.append(self.concert_hall_mode)
 
     def activate(self, manager):
-        self.noise_cancelation.show()
-        self.lou_reed_mode.show()
-        self.concert_hall_mode.show()
         super(ParrotZikVersion1Interface, self).activate(manager)
         self.noise_cancelation.set_active(self.parrot.cancel_noise)
         self.lou_reed_mode.set_active(self.parrot.lou_reed_mode)
         self.concert_hall_mode.set_active(self.parrot.concert_hall)
+
+        self.noise_cancelation.show()
+        self.lou_reed_mode.show()
+        self.concert_hall_mode.show()
+        self.indicator.menu.reposition()
 
     def deactivate(self):
         self.noise_cancelation.hide()

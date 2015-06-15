@@ -41,7 +41,6 @@ class ParrotZikBaseInterface(object):
         self.firmware_version.show()
         self.settings.show()
         self.indicator.active_interface = self
-        self.indicator.menu.reposition()
 
     @property
     def parrot_class(self):
