@@ -2,7 +2,7 @@ import bluetooth
 from operator import itemgetter
 import sys
 
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
 from .message import Message
 
