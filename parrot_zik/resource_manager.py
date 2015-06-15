@@ -57,7 +57,8 @@ class ResourceManagerBase(object):
             if data.notify:
                 notifications.append(data.notify)
             else:
-                raise AssertionError('Unknown response')
+                raise AssertionError('Unknown response "{}" for {}'.format(
+                    data, message.request_string))
             data = self.receive_message()
         self.handle_notifications(notifications, message.resource)
         return data.answer
