@@ -88,7 +88,10 @@ def connect():
         host = first_match["host"]
         sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 
-    sock.connect((host, port))
+    try:
+        sock.connect((host, port))
+    except bluetooth.btcommon.BluetoothError:
+        raise ConnectionFailure
 
     sock.send('\x00\x03\x00')
     sock.recv(1024)
