@@ -1,7 +1,7 @@
-from .. import resource_manager
-from ..indicator import MenuItem
-from ..interface.base import ParrotZikBaseInterface
-from ..model.version1 import ParrotZikVersion1
+from parrot_zik import resource_manager
+from parrot_zik.indicator import MenuItem
+from parrot_zik.interface.base import ParrotZikBaseInterface
+from parrot_zik.model.version1 import ParrotZikVersion1
 
 
 class ParrotZikVersion1Interface(ParrotZikBaseInterface):

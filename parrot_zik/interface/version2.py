@@ -1,11 +1,11 @@
 import functools
 
-from .. import resource_manager
-from ..indicator import MenuItem, Menu
-from .base import ParrotZikBaseInterface
-from ..model.version2 import ParrotZikVersion2
-from ..model.version2 import NoiseControlTypes
-from ..model.version2 import Rooms
+from parrot_zik import resource_manager
+from parrot_zik.indicator import MenuItem, Menu
+from parrot_zik.interface.base import ParrotZikBaseInterface
+from parrot_zik.model.version2 import ParrotZikVersion2
+from parrot_zik.model.version2 import NoiseControlTypes
+from parrot_zik.model.version2 import Rooms
 
 
 class ParrotZikVersion2Interface(ParrotZikBaseInterface):

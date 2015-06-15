@@ -5,9 +5,9 @@ from Foundation import *
 from AppKit import *
 from PyObjCTools import AppHelper
 
-from .base import BaseIndicator
-from .base import MenuItemBase
-from ..status_app_mac import StatusApp
+from parrot_zik.indicator.base import BaseIndicator
+from parrot_zik.indicator.base import MenuItemBase
+from parrot_zik.status_app_mac import StatusApp
 
 
 class DarwinIndicator(BaseIndicator):

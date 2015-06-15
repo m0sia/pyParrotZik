@@ -1,6 +1,6 @@
 import gtk
 
-from .base import MenuItemBase
+from parrot_zik.indicator.base import MenuItemBase
 
 
 class GTKMenu(object):

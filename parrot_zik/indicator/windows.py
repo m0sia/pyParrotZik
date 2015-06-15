@@ -3,7 +3,7 @@ import tempfile
 import gtk
 import os
 
-from .base import BaseIndicator
+from parrot_zik.indicator.base import BaseIndicator
 
 
 class WindowsIndicator(BaseIndicator):

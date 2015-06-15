@@ -1,5 +1,5 @@
-from .base import ParrotZikBase
-from ..resource_manager import Version1ResourceManager
+from parrot_zik.model.base import ParrotZikBase
+from parrot_zik.resource_manager import Version1ResourceManager
 
 
 class ParrotZikVersion1(ParrotZikBase):

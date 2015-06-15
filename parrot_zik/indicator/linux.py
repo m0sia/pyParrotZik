@@ -2,7 +2,7 @@ import os
 
 import gtk
 
-from .base import BaseIndicator
+from parrot_zik.indicator.base import BaseIndicator
 
 
 class LinuxIndicator(BaseIndicator):
