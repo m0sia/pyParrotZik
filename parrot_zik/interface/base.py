@@ -1,4 +1,5 @@
 from parrot_zik import resource_manager
+from parrot_zik.indicator import Menu
 from parrot_zik.indicator import MenuItem
 from parrot_zik.model.base import BatteryStates
 
@@ -15,12 +16,18 @@ class ParrotZikBaseInterface(object):
                                       visible=False)
         self.firmware_version = MenuItem("Firmware Version:", None,
                                          sensitive=False, visible=False)
+        self.settings = MenuItem("Settings", None, visible=False)
+        self.settings_submenu = Menu()
+        self.settings.set_submenu(self.settings_submenu)
+
         self.auto_connection = MenuItem("Auto Connection", self.toggle_auto_connection,
-                                        checkitem=True, visible=False)
+                                        checkitem=True)
+        self.settings_submenu.append(self.auto_connection)
+
         self.indicator.menu.append(self.battery_level)
         self.indicator.menu.append(self.battery_state)
         self.indicator.menu.append(self.firmware_version)
-        self.indicator.menu.append(self.auto_connection)
+        self.indicator.menu.append(self.settings)
 
     def activate(self, manager):
         self.parrot = self.parrot_class(manager)
@@ -32,7 +39,7 @@ class ParrotZikBaseInterface(object):
         self.battery_level.show()
         self.battery_state.show()
         self.firmware_version.show()
-        self.auto_connection.show()
+        self.settings.show()
         self.indicator.active_interface = self
         self.indicator.menu.reposition()
 
@@ -45,7 +52,7 @@ class ParrotZikBaseInterface(object):
         self.battery_level.hide()
         self.battery_state.hide()
         self.firmware_version.hide()
-        self.auto_connection.hide()
+        self.settings.hide()
         self.indicator.menu.reposition()
         self.indicator.active_interface = None
         self.indicator.setIcon("zik-audio-headset")

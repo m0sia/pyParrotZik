@@ -98,9 +98,6 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
 
         self.flight_mode = MenuItem("Flight Mode", self.toggle_flight_mode,
                                     checkitem=True, visible=False)
-        self.settings = MenuItem("Settings", None, visible=False)
-        self.settings_submenu = Menu()
-        self.settings.set_submenu(self.settings_submenu)
 
         self.head_detection = MenuItem("Head Detection", self.toggle_head_detection, checkitem=True)
         self.settings_submenu.append(self.head_detection)
@@ -108,13 +105,11 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.indicator.menu.append(self.room_sound_effect)
         self.indicator.menu.append(self.noise_cancelation)
         self.indicator.menu.append(self.flight_mode)
-        self.indicator.menu.append(self.settings)
 
     def activate(self, manager):
         self.noise_cancelation.show()
         self.flight_mode.show()
         self.room_sound_effect.show()
-        self.settings.show()
         super(ParrotZikVersion2Interface, self).activate(manager)
         self._read_noise_cancelation()
         self.flight_mode.set_active(self.parrot.flight_mode)
@@ -139,7 +134,6 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.noise_cancelation.hide()
         self.flight_mode.hide()
         self.room_sound_effect.hide()
-        self.settings.hide()
         super(ParrotZikVersion2Interface, self).deactivate()
 
     def toggle_flight_mode(self, widget):
