@@ -14,57 +14,70 @@ else:
         import _winreg
 
 
-def get_parrot_zik_mac():
-        p = re.compile('90:03:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}|'
-                       'A0:14:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}')
-        if sys.platform == "linux2":
+p = re.compile('90:03:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}|'
+               'A0:14:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}')
+
+def get_parrot_zik_mac_linux():
+    try:
+        bluetooth_on = int(os.popen('bluez-test-adapter powered').read())
+    except dbus.exceptions.DBusException:
+        pass
+    else:
+        if bluetooth_on == 1:
             try:
-                bluetooth_on = int(os.popen('bluez-test-adapter powered').read())
+                out = os.popen("bluez-test-device list").read()
             except dbus.exceptions.DBusException:
                 pass
             else:
-                if bluetooth_on == 1:
-                    try:
-                        out = os.popen("bluez-test-device list").read()
-                    except dbus.exceptions.DBusException:
-                        pass
-                    else:
-                        res = p.findall(out)
-                        if len(res) > 0:
-                            return res[0]
-                        else:
-                            raise DeviceNotConnected
-                else:
-                    raise BluetoothIsNotOn
-        elif sys.platform == "darwin":
-            fd = open("/Library/Preferences/com.apple.Bluetooth.plist", "rb")
-            plist = binplist.BinaryPlist(file_obj=fd)
-            parsed_plist = plist.Parse()
-            try:
-                for mac in parsed_plist['PairedDevices']:
-                    if p.match(mac.replace("-", ":")):
-                        return mac.replace("-", ":")
+                res = p.findall(out)
+                if len(res) > 0:
+                    return res[0]
                 else:
                     raise DeviceNotConnected
-            except Exception:
-                pass
+        else:
+            raise BluetoothIsNotOn
 
-        elif sys.platform == "win32":
-            aReg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
-            aKey = _winreg.OpenKey(
-                aReg, 'SYSTEM\CurrentControlSet\Services\
-                BTHPORT\Parameters\Devices')
-            for i in range(10):
-                try:
-                    asubkey_name = _winreg.EnumKey(aKey, i)
-                    mac = ':'.join(asubkey_name[i:i+2] for i in range(0, 12, 2))
-                    res = p.findall(mac)
-                    if len(res) > 0:
-                        return res[0]
-                    else:
-                        raise DeviceNotConnected
-                except EnvironmentError:
-                    pass
+
+def get_parrot_zik_mac_darwin():
+    fd = open("/Library/Preferences/com.apple.Bluetooth.plist", "rb")
+    plist = binplist.BinaryPlist(file_obj=fd)
+    parsed_plist = plist.Parse()
+    try:
+        for mac in parsed_plist['PairedDevices']:
+            if p.match(mac.replace("-", ":")):
+                return mac.replace("-", ":")
+        else:
+            raise DeviceNotConnected
+    except Exception:
+        pass
+
+
+def get_parrot_zik_mac_windows():
+    aReg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
+    aKey = _winreg.OpenKey(
+        aReg, 'SYSTEM\CurrentControlSet\Services\
+        BTHPORT\Parameters\Devices')
+    for i in range(10):
+        try:
+            asubkey_name = _winreg.EnumKey(aKey, i)
+            mac = ':'.join(asubkey_name[i:i+2] for i in range(0, 12, 2))
+            res = p.findall(mac)
+            if len(res) > 0:
+                return res[0]
+            else:
+                raise DeviceNotConnected
+        except EnvironmentError:
+            pass
+
+
+if sys.platform in ['linux', 'linux2']:
+    get_parrot_zik_mac = get_parrot_zik_mac_linux
+elif sys.platform == 'darwin':
+    get_parrot_zik_mac = get_parrot_zik_mac_darwin
+elif sys.platform == 'win32':
+    get_parrot_zik_mac = get_parrot_zik_mac_windows
+else:
+    raise AssertionError('Platform not supported')
 
 
 def connect():
