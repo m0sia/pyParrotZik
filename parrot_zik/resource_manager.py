@@ -4,7 +4,7 @@ import sys
 
 from BeautifulSoup import BeautifulSoup
 
-from message import Message
+from parrot_zik.message import Message
 
 
 class ResourceManagerBase(object):

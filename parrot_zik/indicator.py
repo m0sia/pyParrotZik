@@ -41,7 +41,7 @@ class BaseIndicator(object):
 class WindowsIndicator(BaseIndicator):
     def __init__(self, icon, menu):
         self.icon_directory = (
-            os.path.dirname(os.path.realpath(sys.argv[0]))
+            os.path.dirname(os.path.realpath(sys.argv[0])) + os.path.sep + '..'
             + os.path.sep + 'share' + os.path.sep + 'icons'
             + os.path.sep +'zik' + os.path.sep)
         self.menu_shown = False
@@ -77,7 +77,7 @@ class LinuxIndicator(BaseIndicator):
                                + os.path.sep + 'icons' + os.path.sep+'zik'
                                + os.path.sep)
         if not os.path.isdir(self.icon_directory):
-            self.icon_directory = (os.path.dirname(sys.argv[0])
+            self.icon_directory = (os.path.dirname(sys.argv[0]) + os.path.sep + '..'
                                    + os.path.sep + 'share' + os.path.sep
                                    + 'icons' + os.path.sep+'zik'
                                    + os.path.sep)
@@ -108,7 +108,7 @@ class LinuxIndicator(BaseIndicator):
 class DarwinIndicator(BaseIndicator):
     def __init__(self, icon, menu):
         self.icon_directory = (
-            os.path.dirname(os.path.realpath(sys.argv[0])) + os.path.sep
+            os.path.dirname(os.path.realpath(sys.argv[0])) + os.path.sep + '..' + os.path.sep
             + 'share' + os.path.sep + 'icons' + os.path.sep + 'zik'
             + os.path.sep)
         statusicon = StatusApp.sharedApplication()

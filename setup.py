@@ -19,7 +19,7 @@ setup(
 
     windows=[
         {
-            'script': 'parrot_zik_tray',
+            'script': 'parrot_zik/parrot_zik_tray',
             'icon_resources': [(1, "./share/icons/zik/Headphone.ico")],
         }
     ],
@@ -43,7 +43,6 @@ setup(
         'BeautifulSoup', 'bluetooth'
     ],
 
-    py_modules=['parrot_zik', 'message', 'resource_manager'],
-
-    scripts=["parrot_zik_tray"]
+    packages=['parrot_zik'],
+    scripts=["parrot_zik/parrot_zik_tray"]
 )

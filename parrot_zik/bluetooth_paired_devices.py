@@ -2,7 +2,7 @@ import sys
 import re
 import os
 
-from resource_manager import GenericResourceManager
+from parrot_zik.resource_manager import GenericResourceManager
 
 if sys.platform == "darwin":
     from binplist import binplist

@@ -1,5 +1,5 @@
-from resource_manager import Version1ResourceManager
-from resource_manager import Version2ResourceManager
+from parrot_zik.resource_manager import Version1ResourceManager
+from parrot_zik.resource_manager import Version2ResourceManager
 
 
 class BatteryStates:
