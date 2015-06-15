@@ -40,15 +40,11 @@ class BaseIndicator(object):
 
 class WindowsIndicator(BaseIndicator):
     def __init__(self, icon, menu):
-        self.icon_directory = (
-            os.path.dirname(os.path.realpath(sys.argv[0])) + os.path.sep + '..'
-            + os.path.sep + 'share' + os.path.sep + 'icons'
-            + os.path.sep +'zik' + os.path.sep)
+        self.icon_directory = os.path.join(
+            os.path.dirname(os.path.realpath(sys.argv[0])), '..', 'share', 'icons', 'zik')
         self.menu_shown = False
-        sys.stdout = open(tempfile.gettempdir()
-                          + os.path.sep + "zik_tray_stdout.log", "w")
-        sys.stderr = open(tempfile.gettempdir()
-                          + os.path.sep + "zik_tray_stderr.log", "w")
+        sys.stdout = open(os.path.join(tempfile.gettempdir(), "zik_tray_stdout.log", "w"))
+        sys.stderr = open(os.path.join(tempfile.gettempdir(), "zik_tray_stderr.log", "w"))
         statusicon = gtk.StatusIcon()
         statusicon.connect("popup-menu", self.gtk_right_click_event)
         statusicon.set_tooltip("Parrot Zik")
@@ -73,14 +69,9 @@ class WindowsIndicator(BaseIndicator):
 class LinuxIndicator(BaseIndicator):
     def __init__(self, icon, menu):
         import appindicator
-        self.icon_directory = (os.path.sep + 'usr' + os.path.sep + 'share'
-                               + os.path.sep + 'icons' + os.path.sep+'zik'
-                               + os.path.sep)
+        self.icon_directory = os.path.join('/', 'usr', 'share', 'icons', 'zik')
         if not os.path.isdir(self.icon_directory):
-            self.icon_directory = (os.path.dirname(sys.argv[0]) + os.path.sep + '..'
-                                   + os.path.sep + 'share' + os.path.sep
-                                   + 'icons' + os.path.sep+'zik'
-                                   + os.path.sep)
+            self.icon_directory = os.path.join(os.path.dirname(sys.argv[0]), '..', 'share', 'icons', 'zik')
         statusicon = appindicator.Indicator(
             "new-parrotzik-indicator", "indicator-messages",
             appindicator.CATEGORY_APPLICATION_STATUS)
@@ -107,10 +98,8 @@ class LinuxIndicator(BaseIndicator):
 
 class DarwinIndicator(BaseIndicator):
     def __init__(self, icon, menu):
-        self.icon_directory = (
-            os.path.dirname(os.path.realpath(sys.argv[0])) + os.path.sep + '..' + os.path.sep
-            + 'share' + os.path.sep + 'icons' + os.path.sep + 'zik'
-            + os.path.sep)
+        self.icon_directory = os.path.join(
+            os.path.dirname(os.path.realpath(sys.argv[0])), '..', 'share', 'icons', 'zik')
         statusicon = StatusApp.sharedApplication()
         statusicon.initMenu(menu)
         super(DarwinIndicator, self).__init__(icon, menu, statusicon)
