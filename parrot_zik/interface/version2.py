@@ -3,9 +3,9 @@ import functools
 from .. import resource_manager
 from ..indicator import MenuItem, Menu
 from .base import ParrotZikBaseInterface
-from ..parrot_zik_model import ParrotZikVersion2
-from ..parrot_zik_model import NoiseControlTypes
-from ..parrot_zik_model import Rooms
+from ..model.version2 import ParrotZikVersion2
+from ..model.version2 import NoiseControlTypes
+from ..model.version2 import Rooms
 
 
 class ParrotZikVersion2Interface(ParrotZikBaseInterface):

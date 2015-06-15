@@ -1,6 +1,6 @@
 from .. import resource_manager
 from ..indicator import MenuItem
-from ..parrot_zik_model import BatteryStates
+from ..model.base import BatteryStates
 
 RECONNECT_FREQUENCY = 5000
 

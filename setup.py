@@ -43,7 +43,7 @@ setup(
         'BeautifulSoup', 'pybluez'
     ],
 
-    packages=['parrot_zik', 'parrot_zik.interface', 'parrot_zik.indicator'],
+    packages=['parrot_zik', 'parrot_zik.interface', 'parrot_zik.indicator', 'parrot_zik.model'],
     entry_points={
         'console_scripts': [
             'parrot_zik_tray=parrot_zik.parrot_zik_tray:ParrotZikIndicator.main',
