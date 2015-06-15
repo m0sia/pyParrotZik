@@ -5,15 +5,15 @@ from threading import Lock
 import gtk
 
 import bluetooth_paired_devices
-from ParrotZik import BatteryStates
-from ParrotZik import ParrotZikVersion1
-from ParrotZik import ParrotZikVersion2
-from ParrotZik import NoiseControlTypes
+from parrot_zik import BatteryStates
+from parrot_zik import ParrotZikVersion1
+from parrot_zik import ParrotZikVersion2
+from parrot_zik import NoiseControlTypes
 from bluetooth_paired_devices import connect
-from ParrotZik import Rooms
-from SysIndicator import MenuItem
-from SysIndicator import Menu
-from SysIndicator import SysIndicator
+from parrot_zik import Rooms
+from indicator import MenuItem
+from indicator import Menu
+from indicator import SysIndicator
 import resource_manager
 
 REFRESH_FREQUENCY = 30000

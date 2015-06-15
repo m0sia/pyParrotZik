@@ -10,7 +10,7 @@ elif sys.platform == "darwin":
     from Foundation import *
     from AppKit import *
     from PyObjCTools import AppHelper
-    from StatusAppMac import StatusApp
+    from status_app_mac import StatusApp
 
 
 class BaseIndicator(object):
