@@ -13,6 +13,7 @@ from ParrotZik import Rooms
 from SysIndicator import MenuItem
 from SysIndicator import Menu
 from SysIndicator import SysIndicator
+import resource_manager
 
 REFRESH_FREQUENCY = 30000
 RECONNECT_FREQUENCY = 5000
@@ -61,15 +62,11 @@ class ParrotZikIndicator(SysIndicator):
     @repeat
     def reconnect(self):
         if self.active_interface:
-            if not self.active_interface.connected:
-                self.info_item.set_label("Lost connection")
-                self.active_interface.deactivate()
-            else:
-                self.reconnect.stop()
+            self.reconnect.stop()
         else:
             self.info("Trying to connect")
             try:
-                resource_manager = connect()
+                manager = connect()
             except bluetooth_paired_devices.BluetoothIsNotOn:
                 self.info("Bluetooth is turned off")
             except bluetooth_paired_devices.DeviceNotConnected:
@@ -77,13 +74,18 @@ class ParrotZikIndicator(SysIndicator):
             except bluetooth_paired_devices.ConnectionFailure:
                 self.info("Failed to connect")
             else:
-                if resource_manager.api_version.startswith('1'):
-                    self.version_1_interface.activate(resource_manager)
+                if manager.api_version.startswith('1'):
+                    interface = self.version_1_interface
                 else:
-                    self.version_2_interface.activate(resource_manager)
-                self.autorefresh(self)
-                self.autorefresh.start(self, REFRESH_FREQUENCY)
-                self.reconnect.stop()
+                    interface = self.version_2_interface
+                try:
+                    interface.activate(manager)
+                except resource_manager.DeviceDisconnected:
+                    interface.deactivate()
+                else:
+                    self.autorefresh(self)
+                    self.autorefresh.start(self, REFRESH_FREQUENCY)
+                    self.reconnect.stop()
 
     def info(self, message):
         self.info_item.set_label(message)
@@ -118,21 +120,13 @@ class ParrotZikBaseInterface(object):
         self.indicator.menu.append(self.firmware_version)
         self.indicator.menu.append(self.auto_connection)
 
-    @property
-    def connected(self):
-        if self.parrot:
-            return self.parrot.resource_manager.sock
-        else:
-            return False
-
-    def activate(self, resource_manager):
-        self.parrot = self.parrot_class(resource_manager)
+    def activate(self, manager):
+        self.parrot = self.parrot_class(manager)
         self.read_battery()
         self.indicator.info("Connected to: " + self.parrot.friendly_name)
         self.firmware_version.set_label(
             "Firmware version: " + self.parrot.version)
         self.auto_connection.set_active(self.parrot.auto_connect)
-
         self.battery_level.show()
         self.battery_state.show()
         self.firmware_version.show()
@@ -150,26 +144,29 @@ class ParrotZikBaseInterface(object):
         self.battery_state.hide()
         self.firmware_version.hide()
         self.auto_connection.hide()
-        self.indicator.setIcon("zik-audio-headset")
-        self.indicator.info_item.set_label("Parrot Zik Not connected..")
         self.indicator.menu.reposition()
         self.indicator.active_interface = None
+        self.indicator.setIcon("zik-audio-headset")
+        self.indicator.info('Lost Connection')
 
     def toggle_auto_connection(self, widget):
-        if self.connected:
+        try:
             self.parrot.auto_connect = self.auto_connection.get_active()
             self.auto_connection.set_active(self.parrot.auto_connect)
-        else:
+        except resource_manager.DeviceDisconnected:
             self.deactivate()
 
     def refresh(self):
         self.read_battery()
 
     def read_battery(self):
-        if self.connected:
+        try:
             self.parrot.refresh_battery()
             battery_level = self.parrot.battery_level
             battery_state = self.parrot.battery_state
+        except resource_manager.DeviceDisconnected:
+            self.deactivate()
+        else:
             if battery_state == BatteryStates.CHARGING:
                 self.indicator.setIcon("zik-battery-charging")
             elif battery_level > 80:
@@ -187,8 +184,6 @@ class ParrotZikBaseInterface(object):
                 "State: " + BatteryStates.representation[battery_state])
             self.battery_level.set_label(
                 "Battery Level: " + str(battery_level))
-        else:
-            self.deactivate()
 
 
 class ParrotZikVersion1Interface(ParrotZikBaseInterface):
@@ -208,12 +203,11 @@ class ParrotZikVersion1Interface(ParrotZikBaseInterface):
         self.indicator.menu.append(self.lou_reed_mode)
         self.indicator.menu.append(self.concert_hall_mode)
 
-    def activate(self, resource_manager):
+    def activate(self, manager):
         self.noise_cancelation.show()
         self.lou_reed_mode.show()
         self.concert_hall_mode.show()
-        super(ParrotZikVersion1Interface, self).activate(resource_manager)
-
+        super(ParrotZikVersion1Interface, self).activate(manager)
         self.noise_cancelation.set_active(self.parrot.cancel_noise)
         self.lou_reed_mode.set_active(self.parrot.lou_reed_mode)
         self.concert_hall_mode.set_active(self.parrot.concert_hall)
@@ -225,27 +219,27 @@ class ParrotZikVersion1Interface(ParrotZikBaseInterface):
         super(ParrotZikVersion1Interface, self).deactivate()
 
     def toggle_noise_cancelation(self, widget):
-        if self.connected:
+        try:
             self.parrot.cancel_noise = self.noise_cancelation.get_active()
             self.noise_cancelation.set_active(self.parrot.cancel_noise)
-        else:
+        except resource_manager.DeviceDisconnected:
             self.deactivate()
 
     def toggle_lou_reed_mode(self, widget):
-        if self.connected:
+        try:
             self.parrot.lou_reed_mode = self.lou_reed_mode.get_active()
             self.lou_reed_mode.set_active(self.parrot.lou_reed_mode)
             self.concert_hall_mode.set_active(self.parrot.concert_hall)
             self.concert_hall_mode.set_sensitive(
                 not self.lou_reed_mode.get_active())
-        else:
+        except resource_manager.DeviceDisconnected:
             self.deactivate()
 
     def toggle_parrot_concert_hall(self, widget):
-        if self.connected:
+        try:
             self.parrot.concert_hall = self.concert_hall_mode.get_active()
             self.concert_hall_mode.set_active(self.parrot.concert_hall)
-        else:
+        except resource_manager.DeviceDisconnected:
             self.deactivate()
 
 
@@ -343,17 +337,17 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.indicator.menu.append(self.noise_cancelation)
         self.indicator.menu.append(self.flight_mode)
 
-    def activate(self, resource_manager):
+    def activate(self, manager):
         self.noise_cancelation.show()
         self.flight_mode.show()
         self.room_sound_effect.show()
-        super(ParrotZikVersion2Interface, self).activate(resource_manager)
-        self.read_noise_cancelation()
+        super(ParrotZikVersion2Interface, self).activate(manager)
+        self._read_noise_cancelation()
         self.flight_mode.set_active(self.parrot.flight_mode)
-        self.read_sound_effect_room()
-        self.read_sound_effect_angle()
-
+        self._read_sound_effect_room()
+        self._read_sound_effect_angle()
         sound_effect = self.parrot.sound_effect
+
         self.room_sound_effect_enabled.set_active(sound_effect)
         self.concert_hall_mode.set_sensitive(sound_effect)
         self.jazz_mode.set_sensitive(sound_effect)
@@ -375,26 +369,23 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         super(ParrotZikVersion2Interface, self).deactivate()
 
     def toggle_flight_mode(self, widget):
-        if self.connected:
+        try:
             self.parrot.flight_mode = self.flight_mode.get_active()
             self.flight_mode.set_active(self.parrot.flight_mode)
-        else:
+        except resource_manager.DeviceDisconnected:
             self.deactivate()
 
-    def toggledummy(self, widget):
-        print(widget.get_name())
-
     def toggle_room(self, room, widget):
-        if self.connected:
+        try:
             if not self.room_dirty:
                 self.parrot.room = room
                 self.room_dirty = True
-                self.read_sound_effect_room()
+                self._read_sound_effect_room()
                 self.room_dirty = False
-        else:
+        except resource_manager.DeviceDisconnected:
             self.deactivate()
 
-    def read_sound_effect_room(self):
+    def _read_sound_effect_room(self):
         active_room = self.parrot.room
         room_to_menuitem_map = (
             (Rooms.CONCERT_HALL, self.concert_hall_mode),
@@ -406,7 +397,7 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
             menu_item.set_active(room == active_room)
 
     def toggle_room_sound_effect(self, widget):
-        if self.connected:
+        try:
             self.parrot.sound_effect = self.room_sound_effect_enabled.get_active()
             sound_effect = self.parrot.sound_effect
             self.room_sound_effect_enabled.set_active(sound_effect)
@@ -420,20 +411,20 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
             self.angle_120.set_sensitive(sound_effect)
             self.angle_150.set_sensitive(sound_effect)
             self.angle_180.set_sensitive(sound_effect)
-        else:
+        except resource_manager.DeviceDisconnected:
             self.deactivate()
 
     def toggle_angle(self, angle, widget):
-        if self.connected:
+        try:
             if not self.angle_dirty:
                 self.parrot.angle = angle
                 self.angle_dirty = True
-                self.read_sound_effect_angle()
+                self._read_sound_effect_angle()
                 self.angle_dirty = False
-        else:
+        except resource_manager.DeviceDisconnected:
             self.deactivate()
 
-    def read_sound_effect_angle(self):
+    def _read_sound_effect_angle(self):
         active_angle = self.parrot.angle
         angle_to_menuitem_map = (
             (30, self.angle_30),
@@ -447,16 +438,16 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
             menu_item.set_active(angle == active_angle)
 
     def toggle_noise_cancelation(self, noise_calcelation, widget):
-        if self.connected:
+        try:
             if not self.noise_cancelation_dirty:
                 self.parrot.noise_control = noise_calcelation
                 self.noise_cancelation_dirty = True
-                self.read_noise_cancelation()
+                self._read_noise_cancelation()
                 self.noise_cancelation_dirty = False
-        else:
+        except resource_manager.DeviceDisconnected:
             self.deactivate()
 
-    def read_noise_cancelation(self):
+    def _read_noise_cancelation(self):
         active_noise_control = self.parrot.noise_control
         noise_control_to_menuitem_map = (
             (NoiseControlTypes.NOISE_CONTROL_MAX, self.noise_control_cancelation_max),

@@ -1,3 +1,4 @@
+import bluetooth
 from operator import itemgetter
 import sys
 
@@ -45,11 +46,9 @@ class ResourceManagerBase(object):
     def send_message(self, message):
         try:
             self.sock.send(str(message))
-        except Exception:
-            self.sock = ""
-            return
-        else:
             return self.get_answer(message)
+        except bluetooth.btcommon.BluetoothError:
+            raise DeviceDisconnected
 
     def get_answer(self, message):
         data = self.receive_message()
@@ -139,3 +138,6 @@ class Version2ResourceManager(ResourceManagerBase):
         '/api/audio/noise_control/enabled': ['get', 'set'],
         '/api/audio/track/metadata': ['get'],
     }
+
+class DeviceDisconnected(Exception):
+    pass
