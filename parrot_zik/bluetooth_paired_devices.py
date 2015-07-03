@@ -1,7 +1,7 @@
 import dbus
 import sys
 import re
-import os
+from subprocess import Popen, PIPE, STDOUT
 
 from .resource_manager import GenericResourceManager
 
@@ -17,15 +17,28 @@ else:
 p = re.compile('90:03:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}|'
                'A0:14:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}')
 
-def get_parrot_zik_mac_linux():
+
+def get_parrot_zik_mac_linux_using_bluez_test():
     try:
-        bluetooth_on = int(os.popen('bluez-test-adapter powered').read())
+        pipe = Popen(
+            ['bluez-test-adapter', 'powered'],
+            stdout=PIPE,
+            stdin=PIPE,
+            stderr=STDOUT
+        )
+        bluetooth_on = int(pipe.communicate())
     except dbus.exceptions.DBusException:
         pass
     else:
         if bluetooth_on == 1:
             try:
-                out = os.popen("bluez-test-device list").read()
+                pipe = Popen(
+                    ['bluez-test-device', 'list'],
+                    stdout=PIPE,
+                    stdin=PIPE,
+                    stderr=STDOUT
+                )
+                out = pipe.communicate()
             except dbus.exceptions.DBusException:
                 pass
             else:
@@ -36,6 +49,27 @@ def get_parrot_zik_mac_linux():
                     raise DeviceNotConnected
         else:
             raise BluetoothIsNotOn
+
+
+def get_parrot_zik_mac_linux_using_bluetoothcmd():
+    pipe = Popen(['bluetoothctl'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+    res = pipe.communicate("exit")
+    if len(res) > 0 and res[0]:
+        match = p.search(res[0])
+        if match:
+            return match.group(0)
+
+    raise DeviceNotConnected
+
+
+def get_parrot_zik_mac_linux():
+    try:
+        get_parrot_zik_mac_linux_using_bluez_test()
+    except OSError as e:
+        if e.errno == 2:
+            # File not found, probably it means that bluez utils are not
+            # installed
+            return get_parrot_zik_mac_linux_using_bluetoothcmd()
 
 
 def get_parrot_zik_mac_darwin():
