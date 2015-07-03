@@ -44,6 +44,8 @@ class ParrotZikBase(object):
             return True
         elif result == "false":
             return False
+        elif result == "invalid_on":
+            return True
         else:
             raise AssertionError(result)
 
