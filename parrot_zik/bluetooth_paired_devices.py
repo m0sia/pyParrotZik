@@ -18,49 +18,63 @@ p = re.compile('90:03:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2
                'A0:14:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}')
 
 
-def get_parrot_zik_mac_bluez():
-    pipe = Popen(['bluez-test-adapter', 'powered'], stdout=PIPE, stdin=PIPE,
-                 stderr=STDOUT)
-    try:
-        stdout, stderr = pipe.communicate()
-    except dbus.exceptions.DBusException:
-        pass
-    else:
-        bluetooth_on = int(stdout)
-        if bluetooth_on == 1:
-            pipe = Popen(['bluez-test-device', 'list'], stdout=PIPE, stdin=PIPE,
-                         stderr=STDOUT)
-            try:
-                stdout, stderr = pipe.communicate()
-            except dbus.exceptions.DBusException:
-                pass
-            else:
-                res = p.findall(stdout)
-                if len(res) > 0:
-                    return res[0]
-                else:
-                    raise DeviceNotConnected
+class BluetoothDeviceManager(object):
+    def is_bluetooth_on(self):
+        raise NotImplementedError
+
+    def get_mac(self):
+        raise NotImplementedError
+
+
+class BluezBluetoothDeviceManager(BluetoothDeviceManager):
+    def is_bluetooth_on(self):
+        pipe = Popen(['bluez-test-adapter', 'powered'], stdout=PIPE, stdin=PIPE,
+                     stderr=STDOUT)
+        try:
+            stdout, stderr = pipe.communicate()
+        except dbus.exceptions.DBusException:
+            pass
         else:
-            raise BluetoothIsNotOn
+            return bool(stdout.strip())
+
+    def get_mac(self):
+        pipe = Popen(['bluez-test-device', 'list'], stdout=PIPE, stdin=PIPE,
+                     stderr=STDOUT)
+        try:
+            stdout, stderr = pipe.communicate()
+        except dbus.exceptions.DBusException:
+            pass
+        else:
+            res = p.findall(stdout)
+            if len(res) > 0:
+                return res[0]
+            else:
+                raise DeviceNotConnected
 
 
-def get_parrot_zik_mac_bluetoothcmd():
-    pipe = Popen(['bluetoothctl'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-    res = pipe.communicate("exit")
-    if len(res) > 0 and res[0]:
-        match = p.search(res[0])
-        if match:
-            return match.group(0)
+class BluetoothCmdDeviceManager(BluetoothDeviceManager):
+    def is_bluetooth_on(self):
+        return True
 
-    raise DeviceNotConnected
+    def get_mac(self):
+        pipe = Popen(['bluetoothctl'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+        res = pipe.communicate("exit")
+        if len(res) > 0 and res[0]:
+            match = p.search(res[0])
+            if match:
+                return match.group(0)
+        raise DeviceNotConnected
 
 
 def get_parrot_zik_mac_linux():
+    bluez_manager = BluezBluetoothDeviceManager()
     try:
-        return get_parrot_zik_mac_bluez()
+        bluez_manager.is_bluetooth_on()
+        return bluez_manager.get_mac()
     except OSError as e:
         if e.errno == 2:
-            return get_parrot_zik_mac_bluetoothcmd()
+            bluetoothcmd_manager = BluetoothCmdDeviceManager()
+            return bluetoothcmd_manager.get_mac()
 
 
 def get_parrot_zik_mac_darwin():
