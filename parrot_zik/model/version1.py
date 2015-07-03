@@ -25,7 +25,7 @@ class ParrotZikVersion1(ParrotZikBase):
 
     @lou_reed_mode.setter
     def lou_reed_mode(self, arg):
-        self.resource_manager.get("/api/audio/specific_mode/enabled", arg)
+        self.resource_manager.set("/api/audio/specific_mode/enabled", arg)
 
     @property
     def concert_hall(self):
@@ -35,7 +35,7 @@ class ParrotZikVersion1(ParrotZikBase):
 
     @concert_hall.setter
     def concert_hall(self, arg):
-        self.resource_manager.get("/api/audio/sound_effect/enabled", arg)
+        self.resource_manager.set("/api/audio/sound_effect/enabled", arg)
 
     @property
     def cancel_noise(self):
