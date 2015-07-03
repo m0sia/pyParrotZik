@@ -18,31 +18,24 @@ p = re.compile('90:03:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2
                'A0:14:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}')
 
 
-def get_parrot_zik_mac_linux_using_bluez_test():
+def get_parrot_zik_mac_bluez():
+    pipe = Popen(['bluez-test-adapter', 'powered'], stdout=PIPE, stdin=PIPE,
+                 stderr=STDOUT)
     try:
-        pipe = Popen(
-            ['bluez-test-adapter', 'powered'],
-            stdout=PIPE,
-            stdin=PIPE,
-            stderr=STDOUT
-        )
-        bluetooth_on = int(pipe.communicate())
+        stdout, stderr = pipe.communicate()
     except dbus.exceptions.DBusException:
         pass
     else:
+        bluetooth_on = int(stdout)
         if bluetooth_on == 1:
+            pipe = Popen(['bluez-test-device', 'list'], stdout=PIPE, stdin=PIPE,
+                         stderr=STDOUT)
             try:
-                pipe = Popen(
-                    ['bluez-test-device', 'list'],
-                    stdout=PIPE,
-                    stdin=PIPE,
-                    stderr=STDOUT
-                )
-                out = pipe.communicate()
+                stdout, stderr = pipe.communicate()
             except dbus.exceptions.DBusException:
                 pass
             else:
-                res = p.findall(out)
+                res = p.findall(stdout)
                 if len(res) > 0:
                     return res[0]
                 else:
@@ -51,7 +44,7 @@ def get_parrot_zik_mac_linux_using_bluez_test():
             raise BluetoothIsNotOn
 
 
-def get_parrot_zik_mac_linux_using_bluetoothcmd():
+def get_parrot_zik_mac_bluetoothcmd():
     pipe = Popen(['bluetoothctl'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
     res = pipe.communicate("exit")
     if len(res) > 0 and res[0]:
@@ -64,12 +57,10 @@ def get_parrot_zik_mac_linux_using_bluetoothcmd():
 
 def get_parrot_zik_mac_linux():
     try:
-        get_parrot_zik_mac_linux_using_bluez_test()
+        return get_parrot_zik_mac_bluez()
     except OSError as e:
         if e.errno == 2:
-            # File not found, probably it means that bluez utils are not
-            # installed
-            return get_parrot_zik_mac_linux_using_bluetoothcmd()
+            return get_parrot_zik_mac_bluetoothcmd()
 
 
 def get_parrot_zik_mac_darwin():
