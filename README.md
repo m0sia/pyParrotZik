@@ -3,7 +3,7 @@ Parrot Zik Api
 
 ## Overview
 
-Parrot Zik is one of the most advanced headphones in the market. 
+Parrot Zik is one of the most advanced headphones in the market.
 http://www.parrot.com/zik/usa/technology
 
 
@@ -18,16 +18,39 @@ http://goo.gl/dXij2t
 
 ## Tray Indicator Applet Usage
 
-1. Connect Parrot Zik with standard bluetooth connection 
-2. Run applet ./ParrotZikTray.py
+1. Connect Parrot Zik with standard bluetooth connection
+2. Copy `share/icons/zik` directory to `/usr/share/icons`
+3. Run applet `./ParrotZikTray.py`
 
 ### Requirement
 
 Python-bluez is needed. On ubuntu based distro run
 
-````
-sudo apt-get install python-bluez
-````
+```
+sudo apt-get install python-bluez python-appindicator python-beautifulsoup
+```
+
+### Optional
+
+If you want start the manager through the menu or desktop shortcut,
+follow the next steps:
+
+1. Copy the `pyParrotZik` directory or its content to `/opt` directory;
+2. Create a desktop file in `/usr/share/applications` with the following content:
+
+```
+[Desktop Entry]
+Version=1.0
+Name=Parrot Zik Manager
+GenericName=Parrot Zik Manager
+X-GNOME-FullName=Parrot Zik Manager
+Comment=Manager for Parrot Zik headphones
+Exec=/opt/parrot-zik-manager/ParrotZikTray
+Icon=/opt/parrot-zik-manager/share/icons/zik/Headphone.ico
+Terminal=false
+Type=Application
+Categories=AudioVideo;
+```
 
 ## Screenshots
 
