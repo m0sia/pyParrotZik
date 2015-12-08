@@ -13,6 +13,12 @@ class GTKMenu(object):
     def reposition(self):
         self.gtk_menu.reposition()
 
+    def popup(self, *args, **kwargs):
+        self.gtk_menu.popup(*args, **kwargs)
+
+    def poVpdown(self, *args, **kwargs):
+        pass
+
 
 class GTKMenuItem(MenuItemBase):
     def __init__(self, name, action, sensitive=True, checkitem=False, visible=True):
