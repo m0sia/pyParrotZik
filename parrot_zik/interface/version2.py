@@ -23,23 +23,23 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.noise_control_cancelation_max = MenuItem(
             "Max Calcelation", functools.partial(
                 self.toggle_noise_cancelation,
-                NoiseControlTypes.NOISE_CONTROL_MAX), checkitem=True, sensitive=False)
+                NoiseControlTypes.NOISE_CONTROL_MAX), checkitem=True)
         self.noise_control_cancelation_on = MenuItem(
             "Normal Cancelation", functools.partial(
                 self.toggle_noise_cancelation,
-                NoiseControlTypes.NOISE_CONTROL_ON), checkitem=True, sensitive=False)
+                NoiseControlTypes.NOISE_CONTROL_ON), checkitem=True)
         self.noise_control_off = MenuItem(
             "Off", functools.partial(
                 self.toggle_noise_cancelation,
-                NoiseControlTypes.NOISE_CONTROL_OFF), checkitem=True, sensitive=False)
+                NoiseControlTypes.NOISE_CONTROL_OFF), checkitem=True)
         self.noise_control_street_mode = MenuItem(
             "Street Mode", functools.partial(
                 self.toggle_noise_cancelation,
-                NoiseControlTypes.STREET_MODE), checkitem=True, sensitive=False)
+                NoiseControlTypes.STREET_MODE), checkitem=True)
         self.noise_control_street_mode_max = MenuItem(
             "Street Mode Max", functools.partial(
                 self.toggle_noise_cancelation,
-                NoiseControlTypes.STREET_MODE_MAX), checkitem=True, sensitive=False)
+                NoiseControlTypes.STREET_MODE_MAX), checkitem=True)
         self.noise_cancelation_submenu.append(self.noise_control_cancelation_max)
         self.noise_cancelation_submenu.append(self.noise_control_cancelation_on)
         self.noise_cancelation_submenu.append(self.noise_control_off)
@@ -112,6 +112,8 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.flight_mode.set_active(self.parrot.flight_mode)
         self._read_sound_effect_room()
         self._read_sound_effect_angle()
+        self.head_detection.set_active(self.parrot.head_detection)
+
         sound_effect = self.parrot.sound_effect
 
         self.room_sound_effect_enabled.set_active(sound_effect)
