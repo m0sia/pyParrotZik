@@ -73,7 +73,7 @@ class ParrotZikVersion2(ParrotZikBase):
 
     @noise_control.setter
     def noise_control(self, arg):
-        pass
+        self.resource_manager.set('/api/audio/noise_control', arg)
 
     @property
     def noise_control_enabled(self):
@@ -103,7 +103,7 @@ class NoiseControl(object):
         return self.type == other.type and self.value == other.value
 
     def __str__(self):
-        return '{}++{}'.format(self.type, self.value)
+        return '{}&value={}'.format(self.type, self.value)
 
 
 class NoiseControlTypes:
