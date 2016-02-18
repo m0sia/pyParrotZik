@@ -17,7 +17,7 @@ Thanks to [@serathius](https://github.com/serathius) Parrot Zik 2.0 is now suppo
 
 ## Windows Usage
 
-*Volontiers needed to make a fresh windows build. Please contact me if you are interested.*
+*Looking for volunteer to make a fresh windows build. Please contact me if you are interested.*
 
 1. Connect Parrot Zik with standard windows GUI
 2. Install Parrot Tray Zik
@@ -46,6 +46,6 @@ sudo apt-get install python-bluez python-appindicator python-beautifulsoup
 
 ## Mac OS Usage
 
-Current version of pyParrotZik doesn't support Mac OS(even the core should work on Mac OS). Volontiers needed to do all the dirty work(mostly GUI).
+Current version of pyParrotZik doesn't support Mac OS(even the core should work on Mac OS). Looking for volunteer to do all the dirty work(mostly GUI).
 
 You can also use excellent Parrot-Status tool developed specially for Mac OS (https://github.com/vincent-le-normand/Parrot-Status)
