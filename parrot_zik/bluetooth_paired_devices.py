@@ -126,7 +126,8 @@ def connect():
             name="Parrot RFcomm service", addr=mac)
     else:
         uuids = ["0ef0f502-f0ee-46c9-986c-54ed027807fb",
-                 "8B6814D3-6CE7-4498-9700-9312C1711F63"]
+                 "8B6814D3-6CE7-4498-9700-9312C1711F63",
+                 "8B6814D3-6CE7-4498-9700-9312C1711F64"]
         service_matches = []
         for uuid in uuids:
             try:
