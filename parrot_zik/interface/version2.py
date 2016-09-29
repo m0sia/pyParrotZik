@@ -21,7 +21,7 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         self.noise_cancelation.set_submenu(self.noise_cancelation_submenu)
 
         self.noise_control_cancelation_max = MenuItem(
-            "Max Calcelation", functools.partial(
+            "Max Cancelation", functools.partial(
                 self.toggle_noise_cancelation,
                 NoiseControlTypes.NOISE_CONTROL_MAX), checkitem=True)
         self.noise_control_cancelation_on = MenuItem(
@@ -209,10 +209,10 @@ class ParrotZikVersion2Interface(ParrotZikBaseInterface):
         for angle, menu_item in angle_to_menuitem_map:
             menu_item.set_active(angle == active_angle)
 
-    def toggle_noise_cancelation(self, noise_calcelation, widget):
+    def toggle_noise_cancelation(self, noise_cancelation, widget):
         try:
             if not self.noise_cancelation_dirty:
-                self.parrot.noise_control = noise_calcelation
+                self.parrot.noise_control = noise_cancelation
                 self.noise_cancelation_dirty = True
                 self._read_noise_cancelation()
                 self.noise_cancelation_dirty = False
