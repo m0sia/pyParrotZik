@@ -4,7 +4,7 @@ Parrot Zik Applet
 ## Overview
 
 Parrot Zik is one of the most advanced headphones in the market.
-http://www.parrot.com/zik/usa/technology
+https://www.parrot.com/fr/audio/parrot-zik-3
 
 Python Parrot Zik and simple unity app indicator applet.
 Thanks to [@serathius](https://github.com/serathius) Parrot Zik 2.0 is now supported.
