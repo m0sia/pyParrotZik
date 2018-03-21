@@ -30,6 +30,7 @@ setup(
             #'packages':'encodings',
             # Optionally omit gio, gtk.keysyms, and/or rsvg if you're not using them
             'includes': 'cairo, pango, pangocairo, atk, gobject, gio, gtk.keysyms, _winreg',
+            'dll_excludes': ['MSVCP90.dll', 'wbtapi.dll']
         }
     },
    
