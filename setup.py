@@ -20,7 +20,7 @@ setup(
 
     windows=[
         {
-            'script': 'parrot_zik/parrot_zik_tray',
+            'script': 'parrot_zik/parrot_zik_tray.py',
             'icon_resources': [(1, "./share/icons/zik/Headphone.ico")],
         }
     ],
