@@ -9,7 +9,8 @@ if sys.platform == "darwin":
     import lightblue
 else:
     import bluetooth
-    import dbus
+    if sys.platform in ['linux', 'linux2']:
+        import dbus
     if sys.platform == "win32":
         import _winreg
 
