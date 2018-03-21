@@ -9,12 +9,6 @@ https://www.parrot.com/en/audio/parrot-zik-3
 Python Parrot Zik and simple unity app indicator applet.
 Thanks to [@serathius](https://github.com/serathius) Parrot Zik 2.0 is now supported.
 
-## Screenshots
-
-![ScreenShot](https://dl.dropboxusercontent.com/u/4907241/ParrotZikTray.png "Unity App Indicator Applet")
-
-![ScreenShot](https://dl.dropboxusercontent.com/u/4907241/traywin32.png "Windows tray utility")
-
 ## Windows Usage
 
 *Looking for volunteer to make a fresh windows build. Please contact me if you are interested.*
