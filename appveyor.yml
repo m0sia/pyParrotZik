@@ -1,0 +1,15 @@
+environment:
+
+  matrix:
+    - PYTHON: "C:\\Python34"
+   
+install:
+  - "%PYTHON%\\python.exe -m pip install -r requirements.txt"
+
+build: off
+
+after_test:
+  - "%PYTHON%\\python.exe setup.py py2exe"
+
+artifacts:
+  - path: pyParrotZik-%APPVEYOR_BUILD_VERSION%.zip
