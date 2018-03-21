@@ -1,4 +1,3 @@
-import dbus
 import sys
 import re
 from subprocess import Popen, PIPE, STDOUT
@@ -10,6 +9,7 @@ if sys.platform == "darwin":
     import lightblue
 else:
     import bluetooth
+    import dbus
     if sys.platform == "win32":
         import _winreg
 
