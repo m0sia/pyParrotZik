@@ -30,7 +30,8 @@ setup(
             #'packages':'encodings',
             # Optionally omit gio, gtk.keysyms, and/or rsvg if you're not using them
             'includes': 'cairo, pango, pangocairo, atk, gobject, gio, gtk.keysyms, _winreg',
-            'dll_excludes': ['MSVCP90.dll', 'wbtapi.dll', 'irprops.cpl', 'crypt32.dll', 'MSIMG32.DLL', 'NSI.DLL', 'USP10.DLL', 'DNSAPI.DLL']
+            'dll_excludes': ['MSVCP90.dll', 'wbtapi.dll', 'irprops.cpl', 'crypt32.dll', 'MSIMG32.DLL', 'NSI.DLL', 'USP10.DLL', 'DNSAPI.DLL'],
+            'bundle_files': 0
         }
     },
    
