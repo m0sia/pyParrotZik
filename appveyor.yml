@@ -15,7 +15,7 @@ cache:
 build: off
 
 after_test:
-  - "%PYTHON%\\python.exe setup.py"
+  - "%PYTHON%\\python.exe setup.py py2exe"
 
 artifacts:
   - path: pyParrotZik-%APPVEYOR_BUILD_VERSION%.zip
