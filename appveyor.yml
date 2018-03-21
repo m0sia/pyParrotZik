@@ -4,6 +4,7 @@ environment:
     - PYTHON: "C:\\Python27"
    
 install:
+  - appveyor-retry choco install -y InnoSetup
   - "%PYTHON%\\python.exe -m pip install -r requirements.txt"
   - "%PYTHON%\\python.exe -m pip install py2exe_py2"
   - ps: if (-not (Test-Path pygtk-all-in-one-2.24.2.win32-py2.7.msi)) { Start-FileDownload "https://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/pygtk-all-in-one-2.24.2.win32-py2.7.msi" }
@@ -17,7 +18,8 @@ build: off
 
 after_test:
   - "%PYTHON%\\python.exe setup.py py2exe"
-  - "7z a pyParrotZik-%APPVEYOR_BUILD_VERSION%.zip .\\dist\\*"
+  - "7z a pyParrotZik-%APPVEYOR_BUILD_VERSION%.zip .\\dist\\*
+  - iscc win32installer.iss
 
 artifacts:
   - path: pyParrotZik-%APPVEYOR_BUILD_VERSION%.zip
