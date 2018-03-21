@@ -6,17 +6,18 @@ Parrot Zik Applet
 Parrot Zik is one of the most advanced headphones in the market.
 https://www.parrot.com/en/audio/parrot-zik-3
 
-Python Parrot Zik and simple unity app indicator applet.
-Thanks to [@serathius](https://github.com/serathius) Parrot Zik 2.0 is now supported.
+PyParrot Zik is unofficial tool that show Parrot Zik indicator on Windows and Linux.
+Thanks to [@serathius](https://github.com/serathius) for Parrot Zik 2.0 support.
+Thanks to [@moimadmax](https://github.com/moimadmax) for Parrot Zik 3.0 support.
 
 ## Windows Usage
 
-*Looking for volunteer to make a fresh windows build. Please contact me if you are interested.*
+![https://ci.appveyor.com/api/projects/status/7o0v6hy6fqaeulrr?svg=true](https://ci.appveyor.com/api/projects/status/7o0v6hy6fqaeulrr?svg=true)
+Latest build(currently doesn't work):
+https://ci.appveyor.com/project/m0sia/pyParrotZik/build/artifacts
 
-1. Connect Parrot Zik with standard windows GUI
-2. Install Parrot Tray Zik
-http://goo.gl/dXij2t (outdated version supporting only Zik 1.0)
-3. Run ParrotZikTray.exe
+Outdated version that supports only Zik 1.0:
+http://goo.gl/dXij2t  
 
 ## Linux Usage
 
@@ -40,6 +41,4 @@ sudo apt-get install python-bluez python-appindicator python-beautifulsoup
 
 ## Mac OS Usage
 
-Current version of pyParrotZik doesn't support Mac OS(even the core should work on Mac OS). Looking for volunteer to do all the dirty work(mostly GUI).
-
-You can also use excellent Parrot-Status tool developed specially for Mac OS (https://github.com/vincent-le-normand/Parrot-Status)
+Based on investigation made for pyParrotZik the excellent Parrot-Status tool was developed specially for Mac OS (https://github.com/vincent-le-normand/Parrot-Status)
