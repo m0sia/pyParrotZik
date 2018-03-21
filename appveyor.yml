@@ -18,7 +18,7 @@ build: off
 
 after_test:
   - "%PYTHON%\\python.exe setup.py py2exe"
-  - "7z a pyParrotZik-%APPVEYOR_BUILD_VERSION%.zip .\\dist\\*
+  - "7z a pyParrotZik-%APPVEYOR_BUILD_VERSION%.zip .\\dist\\*"
   - iscc win32installer.iss
 
 artifacts:
