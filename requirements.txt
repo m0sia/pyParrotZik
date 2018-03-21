@@ -1,0 +1,6 @@
+cairo
+pango
+pangocairo
+gtk
+gobject
+gio
