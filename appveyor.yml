@@ -23,4 +23,4 @@ after_test:
 
 artifacts:
   - path: pyParrotZik-%APPVEYOR_BUILD_VERSION%.zip
-  - path: pyParrotZik-installer-%APPVEYOR_BUILD_VERSION%.exe
+  - path: Output\\pyParrotZik-installer-%APPVEYOR_BUILD_VERSION%.exe
